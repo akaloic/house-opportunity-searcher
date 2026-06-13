@@ -216,6 +216,17 @@ class Settings(BaseSettings):
     db_path: Path = Path("chasseur.sqlite")
     postgis_dsn: str | None = None
 
+    # --- Mode réel (live) ---
+    market_source: str = "static"  # "static" (démo) | "dvf" (transactions réelles)
+    target_postal_codes: list[str] = Field(
+        default_factory=lambda: ["92400", "92800", "92000", "92600", "92700", "92150", "92250"]
+    )
+    bienici_min_price: float = 50_000.0  # plancher anti-bruit (locations/parkings)
+    dvf_cache_dir: Path = Path("data/dvf_cache")
+    dvf_year: str = "2024"
+    dvf_radius_m: float = 700.0  # rayon "micro-quartier" pour la médiane DVF
+    dvf_min_points: int = 8  # nb mini de ventes dans le rayon, sinon repli commune
+
     scoring: ScoringConfig = Field(default_factory=ScoringConfig)
     lexicon: LexiconConfig = Field(default_factory=LexiconConfig)
     renovation: RenovationConfig = Field(default_factory=RenovationConfig)

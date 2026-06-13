@@ -41,8 +41,18 @@ def _print_summary(results: list[ScoredListing], summary: RunSummary) -> None:
             print("-" * 64)
 
 
+def _run(args: argparse.Namespace, settings: Settings, *, notify: bool, now: datetime | None = None):
+    """Lance le pipeline en mode live (BienIci + DVF réels) ou démo/sample."""
+    if getattr(args, "live", False):
+        settings.market_source = "dvf"
+        return run_pipeline(
+            settings, scrapers=["bienici"], max_results=args.limit, now=now, notify=notify
+        )
+    return run_pipeline(settings, demo=args.demo, now=now, notify=notify)
+
+
 def cmd_run(args: argparse.Namespace, settings: Settings) -> int:
-    results, summary = run_pipeline(settings, demo=args.demo, notify=not args.no_notify)
+    results, summary = _run(args, settings, notify=not args.no_notify)
     _print_summary(results, summary)
     return 0
 
@@ -63,7 +73,7 @@ def cmd_score_file(args: argparse.Namespace, settings: Settings) -> int:
 
 def cmd_export_web(args: argparse.Namespace, settings: Settings) -> int:
     now = datetime.now()
-    results, summary = run_pipeline(settings, demo=args.demo, now=now, notify=False)
+    results, summary = _run(args, settings, notify=False, now=now)
     out = write_data_live(args.output, results, summary, settings, now)
     print(f"✅ {len(results)} leads exportés vers {out}")
     print(f"   Lance le dashboard :  chasseur serve-web   (puis ouvre l'URL affichée)")
@@ -93,6 +103,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_run = sub.add_parser("run", help="Lance le pipeline et affiche les leads")
     p_run.add_argument("--demo", action="store_true", help="Fixtures hors-ligne (aucune dépendance)")
+    p_run.add_argument("--live", action="store_true", help="Scraping RÉEL BienIci + décote DVF réelle")
+    p_run.add_argument("--limit", type=int, default=60, help="Nb max d'annonces (mode live)")
     p_run.add_argument("--no-notify", action="store_true", help="Ne pas déclencher les alertes")
     p_run.set_defaults(func=cmd_run)
 
@@ -102,6 +114,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_export = sub.add_parser("export-web", help="Exporte les leads vers le dashboard Pépite")
     p_export.add_argument("--demo", action="store_true", help="Fixtures hors-ligne")
+    p_export.add_argument("--live", action="store_true", help="Scraping RÉEL BienIci + décote DVF")
+    p_export.add_argument("--limit", type=int, default=60, help="Nb max d'annonces (mode live)")
     p_export.add_argument("-o", "--output", default=str(DEFAULT_WEB_DATA), help="Fichier data.live.js")
     p_export.set_defaults(func=cmd_export_web)
 

@@ -55,8 +55,20 @@ class Refs:
 
 
 def build_refs(settings: Settings) -> Refs:
+    market: MarketReference
+    if settings.market_source == "dvf":
+        from chasseur.enrich.dvf import DVFGeoReference
+
+        market = DVFGeoReference(
+            cache_dir=settings.dvf_cache_dir,
+            year=settings.dvf_year,
+            radius_m=settings.dvf_radius_m,
+            min_points=settings.dvf_min_points,
+        )
+    else:
+        market = StaticMarketReference.from_file(settings.market_medians_path)
     return Refs(
-        market=StaticMarketReference.from_file(settings.market_medians_path),
+        market=market,
         gpe=StaticGPEReference.from_file(settings.gpe_path),
         search=build_search_provider(settings.search),
     )
@@ -103,6 +115,9 @@ def run_pipeline(
     settings: Settings,
     *,
     demo: bool = False,
+    scrapers: list[str] | None = None,
+    refs: Refs | None = None,
+    max_results: int = 60,
     as_of: date | None = None,
     now: datetime | None = None,
     store: SQLiteStore | None = None,
@@ -110,17 +125,24 @@ def run_pipeline(
 ) -> tuple[list[ScoredListing], RunSummary]:
     now = now or datetime.now()
     as_of = as_of or now.date()
-    refs = build_refs(settings)
+    refs = refs or build_refs(settings)
     own_store = store is None
     store = store or SQLiteStore(settings.db_path)
     notifier = Notifier(settings.alert, store)
 
-    scraper_names = ["sample"] if demo else settings.enabled_scrapers
+    if scrapers is not None:
+        scraper_names = scrapers
+    elif demo:
+        scraper_names = ["sample"]
+    else:
+        scraper_names = settings.enabled_scrapers
     threshold = settings.scoring.alert_threshold
     query = ScrapeQuery(
+        postal_codes=list(settings.target_postal_codes),
         price_max=settings.budget_max,
         surface_min=settings.surface_min,
         surface_max=settings.surface_max,
+        max_results=max_results,
     )
 
     results: list[ScoredListing] = []

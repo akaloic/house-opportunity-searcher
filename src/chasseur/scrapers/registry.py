@@ -32,7 +32,7 @@ def build_scraper(name: str, settings: Settings) -> Scraper:
     if name == "bienici":
         from chasseur.scrapers.bienici import BienIciScraper
 
-        return BienIciScraper(session)
+        return BienIciScraper(session, min_price=settings.bienici_min_price)
     from chasseur.scrapers.pap import PapScraper
 
     return PapScraper(session)

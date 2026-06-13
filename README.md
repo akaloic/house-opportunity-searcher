@@ -42,6 +42,25 @@ enterré.
 
 ---
 
+## 🛰️ Mode réel (live) — BienIci + DVF officiel
+
+Pas que de la démo : un scraper **réel** (BienIci, le portail le plus accessible d'IDF) et une
+**décote calculée sur de vraies transactions** (open data **DVF** DGFiP/Etalab, médiane au rayon du bien).
+
+```bash
+chasseur run --live --limit 30        # vraies annonces, scorées sur la vraie médiane DVF
+chasseur export-web --live            # alimente le dashboard avec les vrais leads
+```
+
+Ciblage des zones : `CHASSEUR_TARGET_POSTAL_CODES='["92400","92800"]'`. BienIci passe par la
+`StealthSession` (cadence polie, faible volume) ; les CSV DVF sont mis en cache dans `data/dvf_cache/`.
+Test d'intégration réel (réseau) : `CHASSEUR_LIVE_TESTS=1 pytest tests/test_live_bienici.py`.
+
+> SeLoger/LeBonCoin restent des forteresses **DataDome** (proxies résidentiels + FlareSolverr requis)
+> et PAP est derrière **Cloudflare** — BienIci est le point d'entrée réel qui fonctionne aujourd'hui.
+
+---
+
 ## 🖥️ Dashboard de commandement (design Pépite)
 
 Interface dense « dark BI » (4 vues : Dashboard cartographie · Fiche détail avec radar de
