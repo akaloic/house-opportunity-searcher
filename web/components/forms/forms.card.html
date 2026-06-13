@@ -1,0 +1,68 @@
+<!-- @dsCard group="Components" viewport="700x340" name="Forms & controls" subtitle="Button · Input · Select · Switch · Slider" -->
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body{margin:0;background:var(--bg-base);padding:22px;font-family:var(--font-sans)}
+  .grid{display:flex;flex-direction:column;gap:20px;max-width:660px}
+  .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  .lbl{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px}
+</style></head><body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <script type="text/babel">
+    const DS = window.PPiteDesignSystem_0c887c || {};
+    const { Button, Input, Select, Switch, RangeSlider } = DS;
+    function Demo(){
+      return (
+        <div className="grid">
+          <div>
+            <div className="lbl">Buttons</div>
+            <div className="row">
+              <Button variant="primary">Lancer le scan</Button>
+              <Button variant="gold">Marquer pépite</Button>
+              <Button variant="secondary">Annuler</Button>
+              <Button variant="ghost">Réinitialiser</Button>
+              <Button variant="danger">Supprimer</Button>
+              <Button variant="primary" loading>Scan…</Button>
+              <Button variant="primary" disabled>Désactivé</Button>
+            </div>
+          </div>
+          <div className="cols">
+            <div>
+              <div className="lbl">Input · Select</div>
+              <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                <Input type="number" placeholder="450 000" suffix="€" defaultValue="450000" />
+                <Input placeholder="Surface min" suffix="m²" defaultValue="38" />
+                <Select defaultValue="score">
+                  <option value="score">Trier par score</option>
+                  <option value="price">Prix croissant</option>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <div className="lbl">Switch</div>
+              <div style={{display:'flex',flexDirection:'column',gap:12}}>
+                <Switch defaultChecked label="Alerte e-mail" />
+                <Switch label="Exclure RDC" />
+                <Switch defaultChecked label="Temps réel" />
+              </div>
+            </div>
+          </div>
+          <div>
+            <div className="lbl">Range slider — poids du scoring</div>
+            <div style={{display:'flex',flexDirection:'column',gap:14,maxWidth:340}}>
+              <RangeSlider label="Proximité métro" defaultValue={80} valueSuffix="%" accent="var(--viz-2)" />
+              <RangeSlider label="Prix / m²" defaultValue={95} valueSuffix="%" accent="var(--viz-1)" />
+              <RangeSlider label="Potentiel DPE" defaultValue={45} valueSuffix="%" accent="var(--viz-3)" />
+            </div>
+          </div>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+  </script>
+</body></html>

@@ -1,0 +1,15 @@
+{
+  "_comment": "Futures gares Grand Paris Express — corridor La Défense (Ligne 15 Ouest + EOLE/RER E). Coordonnées et années d'ouverture APPROXIMATIVES et illustratives : à fiabiliser via l'open data Société du Grand Paris / IDFM avant usage réel. La recherche web (enrich/transport.py) sert à rafraîchir les calendriers, souvent mouvants.",
+  "stations": [
+    {"name": "Nanterre La Folie", "line": "RER E (EOLE)", "lat": 48.9013, "lon": 2.2240, "opening_year": 2027, "source": "approx"},
+    {"name": "La Défense", "line": "M15 Ouest", "lat": 48.8918, "lon": 2.2380, "opening_year": 2031, "source": "approx"},
+    {"name": "Nanterre La Boule", "line": "M15 Ouest", "lat": 48.8923, "lon": 2.2070, "opening_year": 2031, "source": "approx"},
+    {"name": "Rueil-Suresnes Mont-Valérien", "line": "M15 Ouest", "lat": 48.8720, "lon": 2.1960, "opening_year": 2031, "source": "approx"},
+    {"name": "Bois-Colombes", "line": "M15 Ouest", "lat": 48.9170, "lon": 2.2700, "opening_year": 2031, "source": "approx"},
+    {"name": "Becon-les-Bruyeres", "line": "M15 Ouest", "lat": 48.9083, "lon": 2.2700, "opening_year": 2031, "source": "approx"},
+    {"name": "Les Agnettes", "line": "M15 Ouest", "lat": 48.9240, "lon": 2.2880, "opening_year": 2031, "source": "approx"},
+    {"name": "Les Gresillons", "line": "M15 Ouest", "lat": 48.9360, "lon": 2.2980, "opening_year": 2031, "source": "approx"},
+    {"name": "Saint-Cloud", "line": "M15 Ouest", "lat": 48.8400, "lon": 2.2190, "opening_year": 2031, "source": "approx"},
+    {"name": "Pont de Sevres", "line": "M15 Sud", "lat": 48.8290, "lon": 2.2300, "opening_year": 2026, "source": "approx"}
+  ]
+}

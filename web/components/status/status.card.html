@@ -1,0 +1,41 @@
+<!-- @dsCard group="Components" viewport="700x240" name="Status & logs" subtitle="StatusDot · LogRow" -->
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body{margin:0;background:var(--bg-base);padding:22px;font-family:var(--font-sans)}
+  .lbl{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:12px}
+  .dots{display:flex;gap:22px;flex-wrap:wrap;margin-bottom:20px}
+  .console{background:var(--bg-sunken);border:1px solid var(--border-subtle);border-radius:10px;padding:8px 2px}
+</style></head><body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <script type="text/babel">
+    const DS = window.PPiteDesignSystem_0c887c || {};
+    const { StatusDot, LogRow } = DS;
+    function Demo(){
+      return (
+        <div>
+          <div className="lbl">Status</div>
+          <div className="dots">
+            <StatusDot status="online" label="Leboncoin" />
+            <StatusDot status="running" label="SeLoger · scan" />
+            <StatusDot status="warning" label="Proxy FR-3 dégradé" />
+            <StatusDot status="blocked" label="PAP bloqué" />
+            <StatusDot status="idle" label="Bien'ici" />
+          </div>
+          <div className="lbl">Console de scraping</div>
+          <div className="console">
+            <LogRow time="14:22:07" level="ok" source="[leboncoin]" message="142 annonces récupérées · 3 pépites" />
+            <LogRow time="14:22:09" level="info" source="[scoring]" message="recalcul des poids · 248 biens" />
+            <LogRow time="14:22:31" level="warn" source="[proxy]" message="FR-3 rate-limited → rotation FR-7" />
+            <LogRow time="14:22:48" level="error" source="[pap]" message="HTTP 403 · captcha détecté" />
+          </div>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+  </script>
+</body></html>

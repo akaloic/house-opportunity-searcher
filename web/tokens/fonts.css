@@ -1,0 +1,10 @@
+/* ============================================================
+   PÉPITE · Fonts
+   Loaded from Google Fonts CDN (no local binaries shipped).
+   - IBM Plex Sans  → UI / body  (technical, data-grade legibility)
+   - IBM Plex Mono  → numerics, code, logs, tabular data
+   - Space Grotesk  → display, KPIs, wordmark
+   NOTE: substituted from CDN. Swap in licensed binaries +
+   @font-face rules here if self-hosting is required.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap');

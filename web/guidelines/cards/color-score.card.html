@@ -1,0 +1,12 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Score & heat scales" subtitle="Sequential opportunity gradients" -->
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body{margin:0;background:var(--bg-base);display:flex;flex-direction:column;gap:16px;padding:24px;height:150px;box-sizing:border-box;justify-content:center}
+  .row label{font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between;margin-bottom:7px;font-weight:500}
+  .grad{height:22px;border-radius:var(--radius-pill);border:1px solid var(--border-subtle)}
+  .lab{font-family:var(--font-mono);font-size:10px;color:var(--text-faint)}
+</style></head><body>
+  <div class="row"><label><span>Score pépite — surcoté → opportunité</span><span class="lab">--score-gradient</span></label><div class="grad" style="background:var(--score-gradient)"></div></div>
+  <div class="row"><label><span>Heatmap densité d'opportunités</span><span class="lab">--heat-gradient</span></label><div class="grad" style="background:var(--heat-gradient)"></div></div>
+</body></html>

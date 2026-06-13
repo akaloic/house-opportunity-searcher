@@ -1,0 +1,88 @@
+/* ============================================================
+   PÉPITE · Color tokens
+   Dark-first BI / monitoring palette. Cool graphite neutrals,
+   one teal-emerald brand (interactive), one gold accent
+   ("pépite" = gold nugget → opportunity highlight), plus a
+   full semantic + data-viz scale tuned for dark surfaces.
+   ============================================================ */
+:root {
+  /* ---- Neutral / surface ramp (deepest → highest) ---- */
+  --bg-sunken:    #06080C; /* wells: log consoles, code, map void */
+  --bg-base:      #0A0D13; /* app background */
+  --surface-1:    #11151D; /* cards, default panels */
+  --surface-2:    #171C26; /* raised panels, hover rows */
+  --surface-3:    #1E2530; /* inputs, popovers, menus */
+  --surface-4:    #28303C; /* active/selected, sliders track-fill bg */
+
+  /* ---- Borders / hairlines ---- */
+  --border-subtle:  #1F2630;
+  --border-default: #2A323E;
+  --border-strong:  #3A4452;
+  --border-focus:   #2DD4A7;
+
+  /* ---- Text ---- */
+  --text-strong:   #EEF1F6;
+  --text-default:  #C7CFDB;
+  --text-muted:    #8A93A3;
+  --text-faint:    #5C6675;
+  --text-disabled: #444C59;
+  --text-on-brand: #04130E; /* dark ink on teal fills */
+  --text-on-gold:  #2A1D02;
+
+  /* ---- Brand · teal-emerald (interactive) ---- */
+  --brand-300: #7CEBD0;
+  --brand-400: #4FE0BA;
+  --brand-500: #2DD4A7; /* primary */
+  --brand-600: #1FB68E;
+  --brand-700: #178F70;
+  --brand-soft: rgba(45, 212, 167, 0.13);
+  --brand-soft-hover: rgba(45, 212, 167, 0.20);
+  --brand-glow: rgba(45, 212, 167, 0.28);
+
+  /* ---- Gold · "pépite" opportunity accent ---- */
+  --gold-300: #FFD37A;
+  --gold-400: #FFC658;
+  --gold-500: #F2B33D;
+  --gold-600: #D2982A;
+  --gold-soft: rgba(242, 179, 61, 0.14);
+  --gold-glow: rgba(242, 179, 61, 0.30);
+
+  /* ---- Semantic ---- */
+  --success-500: #3FCF6A;
+  --success-soft: rgba(63, 207, 106, 0.14);
+  --warning-500: #F5A623;
+  --warning-soft: rgba(245, 166, 35, 0.14);
+  --danger-500:  #F2585B;
+  --danger-soft:  rgba(242, 88, 91, 0.14);
+  --info-500:    #4BA3F5;
+  --info-soft:    rgba(75, 163, 245, 0.14);
+
+  /* ---- Data-viz categorical (charts, radar series) ---- */
+  --viz-1: #2DD4A7; /* teal */
+  --viz-2: #5B9DF9; /* blue */
+  --viz-3: #A78BFA; /* violet */
+  --viz-4: #F2B33D; /* gold */
+  --viz-5: #F2748C; /* coral */
+  --viz-6: #34D0E0; /* cyan */
+  --viz-7: #FF9F6E; /* amber-orange */
+  --viz-8: #8DD45A; /* lime */
+
+  /* ---- Score sequential (overpriced → pépite) ---- */
+  --score-0:  #F2585B; /* worst / overpriced */
+  --score-25: #F58E4A;
+  --score-50: #F2B33D; /* fair */
+  --score-75: #9BD45A;
+  --score-100:#2DD4A7; /* best / pépite */
+  --score-gradient: linear-gradient(90deg, #F2585B 0%, #F2B33D 50%, #2DD4A7 100%); /* @kind other */
+  --heat-gradient: linear-gradient(90deg, rgba(75,163,245,0) 0%, rgba(75,163,245,.5) 35%, rgba(242,179,61,.7) 70%, rgba(242,88,91,.85) 100%); /* @kind other */
+
+  /* ---- Semantic aliases (use these in components) ---- */
+  --app-bg: var(--bg-base);
+  --surface-card: var(--surface-1);
+  --surface-raised: var(--surface-2);
+  --surface-input: var(--surface-3);
+  --accent: var(--brand-500);
+  --accent-hover: var(--brand-400);
+  --accent-press: var(--brand-600);
+  --focus-ring: rgba(45, 212, 167, 0.45);
+}

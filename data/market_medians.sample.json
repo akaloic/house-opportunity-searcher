@@ -1,0 +1,15 @@
+{
+  "_comment": "Médianes prix/m² (EUR) par code postal + typologie. Valeurs APPROXIMATIVES (~2024) pour la démo. En prod : remplacer par une vraie agrégation DVF en PostGIS au niveau IRIS / rayon 400-600m (enrich/dvf.py -> DVFPostGISReference).",
+  "medians": [
+    {"postal_code": "92400", "property_type": "apartment", "median_ppm2": 7300},
+    {"postal_code": "92800", "property_type": "apartment", "median_ppm2": 8200},
+    {"postal_code": "92000", "property_type": "apartment", "median_ppm2": 6300},
+    {"postal_code": "92600", "property_type": "apartment", "median_ppm2": 7000},
+    {"postal_code": "92700", "property_type": "apartment", "median_ppm2": 5600},
+    {"postal_code": "92270", "property_type": "apartment", "median_ppm2": 6800},
+    {"postal_code": "92150", "property_type": "apartment", "median_ppm2": 7600},
+    {"postal_code": "75015", "property_type": "apartment", "median_ppm2": 10500},
+    {"postal_code": "92400", "property_type": "house", "median_ppm2": 8100},
+    {"postal_code": "92700", "property_type": "house", "median_ppm2": 6200}
+  ]
+}

@@ -1,0 +1,54 @@
+/* ============================================================
+   PÉPITE · Typography tokens
+   Dense, technical type. Sans for UI, Mono for every number
+   that matters (prices, €/m², scores, coords, logs).
+   ============================================================ */
+:root {
+  /* ---- Families ---- */
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-display: 'Space Grotesk', 'IBM Plex Sans', system-ui, sans-serif;
+
+  /* ---- Sizes (px → rem-ish, BI base 14) ---- */
+  --text-2xs: 11px;
+  --text-xs:  12px;
+  --text-sm:  13px;
+  --text-base:14px;
+  --text-md:  15px;
+  --text-lg:  16px;
+  --text-xl:  18px;
+  --text-2xl: 22px;
+  --text-3xl: 28px;
+  --text-4xl: 36px;
+  --text-5xl: 48px;
+  --text-6xl: 64px;
+
+  /* ---- Weights ---- */
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semibold:600;
+  --weight-bold:    700;
+
+  /* ---- Line heights ---- */
+  --leading-none:  1;
+  --leading-tight: 1.18;
+  --leading-snug:  1.35;
+  --leading-normal:1.5;
+  --leading-relaxed:1.65;
+
+  /* ---- Letter spacing ---- */
+  --tracking-tighter: -0.02em;
+  --tracking-tight:   -0.01em;
+  --tracking-normal:  0;
+  --tracking-wide:    0.02em;
+  --tracking-wider:   0.06em;
+  --tracking-caps:    0.10em; /* eyebrows / uppercase labels */
+
+  /* ---- Numeric features (tabular figures for data) ---- */
+  --font-feature-tnum: 'tnum' 1, 'zero' 1;
+}
+
+/* Base document defaults */
+:root {
+  color-scheme: dark;
+}

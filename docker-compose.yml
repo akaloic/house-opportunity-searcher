@@ -1,0 +1,29 @@
+# Infra de prod (optionnelle). Le mode démo n'en a pas besoin.
+#   docker compose up -d
+services:
+  postgis:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: chasseur
+      POSTGRES_PASSWORD: chasseur
+      POSTGRES_DB: chasseur
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  # Résolveur de challenges Cloudflare / JS pour les portails coriaces.
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    environment:
+      LOG_LEVEL: info
+    ports:
+      - "8191:8191"
+
+volumes:
+  pgdata:

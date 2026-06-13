@@ -1,0 +1,62 @@
+<!-- @dsCard group="Components" viewport="700x430" name="Data & scoring" subtitle="StatCard · ScoreGauge · ScoreRadar · ScoreBar · Badge · Delta" -->
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body{margin:0;background:var(--bg-base);padding:22px;font-family:var(--font-sans)}
+  .lbl{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+  .split{display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:start}
+  .bars{display:flex;flex-direction:column;gap:12px}
+  .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+</style></head><body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <script type="text/babel">
+    const DS = window.PPiteDesignSystem_0c887c || {};
+    const { StatCard, ScoreGauge, ScoreRadar, ScoreBar, Badge, Delta } = DS;
+    function Demo(){
+      return (
+        <div>
+          <div className="kpis">
+            <StatCard label="Pépites · 24h" value="14" delta="+6" />
+            <StatCard label="Prix médian /m²" value="9 240" unit="€" delta="-2,1%" deltaTone="muted" />
+            <StatCard label="Annonces scannées" value="2 481" delta="+312" />
+          </div>
+          <div className="split">
+            <div>
+              <div className="lbl">Score gauge</div>
+              <div style={{display:'flex',gap:18,alignItems:'center',marginBottom:18}}>
+                <ScoreGauge value={87} label="Pépite" />
+                <ScoreGauge value={52} size={64} />
+              </div>
+              <div className="lbl">Score radar</div>
+              <ScoreRadar size={172} axes={[
+                {short:'Prix/m²',value:95},{short:'Transp.',value:88},{short:'Fraîch.',value:90},
+                {short:'DPE',value:72},{short:'Étage',value:80},{short:'Calme',value:70}]} />
+            </div>
+            <div>
+              <div className="lbl">Décomposition du score</div>
+              <div className="bars">
+                <ScoreBar label="Prix / m² vs quartier" value={92} suffix=" pts" />
+                <ScoreBar label="Proximité transports" value={78} accent="var(--viz-2)" suffix=" pts" />
+                <ScoreBar label="Potentiel DPE" value={40} accent="var(--viz-3)" suffix=" pts" />
+              </div>
+              <div className="row">
+                <Badge tone="gold" dot>Pépite</Badge>
+                <Badge tone="success">DPE C</Badge>
+                <Badge tone="info">SeLoger</Badge>
+                <Badge tone="warning">Fraîche · 2h</Badge>
+                <Badge tone="danger" solid>Surcoté</Badge>
+                <Delta value={-18} invert />
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+  </script>
+</body></html>
