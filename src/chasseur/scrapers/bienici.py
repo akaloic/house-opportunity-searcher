@@ -99,7 +99,8 @@ class BienIciScraper(Scraper):
             description += " (prix en baisse)"  # capté par le NLP -> signal vendeur
 
         ptype = PropertyType.house if ad.get("propertyType") == "house" else PropertyType.apartment
-        photos = ad.get("photos")
+        photo_list = ad.get("photos") if isinstance(ad.get("photos"), list) else []
+        photo_urls = [p["url"] for p in photo_list if isinstance(p, dict) and p.get("url")][:12]
 
         return Listing(
             source=Source.bienici,
@@ -122,8 +123,12 @@ class BienIciScraper(Scraper):
             geocode_confidence=0.9 if exact else 0.5,
             published_at=_parse_date(ad.get("modificationDate") or ad.get("publicationDate")),
             is_professional=bool(ad["adCreatedByPro"]) if "adCreatedByPro" in ad else None,
-            raw={"reference": ad.get("reference"), "pricePerSquareMeter": ad.get("pricePerSquareMeter"),
-                 "photos": len(photos) if isinstance(photos, list) else 0},
+            raw={
+                "reference": ad.get("reference"),
+                "pricePerSquareMeter": ad.get("pricePerSquareMeter"),
+                "photos": len(photo_list),
+                "photo_urls": photo_urls,
+            },
         )
 
     # --- boucle principale ------------------------------------------------ #

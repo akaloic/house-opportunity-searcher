@@ -85,9 +85,11 @@ def _map_listing(sl: ScoredListing, settings: Settings, now: datetime) -> dict[s
     ]
     x, y = _project(listing.lat, listing.lon)
     floor = listing.floor or 0
-    photos = int(listing.raw.get("photos", 0)) if isinstance(listing.raw.get("photos"), int) else 0
+    photo_urls = listing.raw.get("photo_urls")
+    photo_urls = photo_urls if isinstance(photo_urls, list) else []
     return {
         "id": listing.source_id,
+        "url": listing.url,
         "score": round(score.total),
         "title": listing.title,
         "addr": f"{listing.city or ''} {listing.postal_code or ''}".strip() or listing.title,
@@ -102,7 +104,10 @@ def _map_listing(sl: ScoredListing, settings: Settings, now: datetime) -> dict[s
         "dpe": listing.dpe or "—",
         "source": _SOURCE_LABEL.get(listing.source, listing.source.value),
         "freshMin": _fresh_minutes(listing.published_at, now),
-        "photos": photos,
+        "photos": len(photo_urls),
+        "photoUrls": photo_urls,
+        "lat": listing.lat,
+        "lon": listing.lon,
         "metro": metro,
         "crit": crit,
         "x": x,

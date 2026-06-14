@@ -81,11 +81,16 @@ def cmd_export_web(args: argparse.Namespace, settings: Settings) -> int:
 
 
 def cmd_serve_web(args: argparse.Namespace, settings: Settings) -> int:
+    import functools
     import http.server
     import socketserver
 
-    directory = str(args.dir)
-    handler = lambda *a, **k: http.server.SimpleHTTPRequestHandler(*a, directory=directory, **k)  # noqa: E731
+    class _Handler(http.server.SimpleHTTPRequestHandler):
+        def end_headers(self) -> None:  # dev : jamais de cache (évite les .jsx périmés)
+            self.send_header("Cache-Control", "no-store, max-age=0")
+            super().end_headers()
+
+    handler = functools.partial(_Handler, directory=str(args.dir))
     with socketserver.TCPServer(("127.0.0.1", args.port), handler) as httpd:
         url = f"http://127.0.0.1:{args.port}/ui_kits/pepite-dashboard/index.html"
         print(f"🖥️  Dashboard Pépite :  {url}")

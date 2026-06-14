@@ -14,7 +14,7 @@ function Fact({ icon, label, value }) {
   );
 }
 
-function PhotoBlock({ idx, total, big }) {
+function PhotoBlock({ idx, total, big, src }) {
   return (
     <div style={{
       position: 'relative', borderRadius: 'var(--radius-md)', overflow: 'hidden',
@@ -22,8 +22,11 @@ function PhotoBlock({ idx, total, big }) {
       border: '1px solid var(--border-subtle)', aspectRatio: big ? '16/10' : '1/1',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
-      <Icon name="image" size={big ? 28 : 18} color="var(--text-disabled)" />
-      {big && <span style={{ position: 'absolute', bottom: 8, right: 9, fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-faint)', background: 'rgba(6,8,12,0.7)', padding: '2px 6px', borderRadius: 4 }}>{idx}/{total}</span>}
+      {src
+        ? <img src={src} loading="lazy" alt="" referrerPolicy="no-referrer" onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+        : <Icon name="image" size={big ? 28 : 18} color="var(--text-disabled)" />}
+      {big && total > 0 && <span style={{ position: 'absolute', bottom: 8, right: 9, fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-faint)', background: 'rgba(6,8,12,0.7)', padding: '2px 6px', borderRadius: 4 }}>{idx}/{total}</span>}
     </div>
   );
 }
@@ -50,6 +53,7 @@ function Contribution({ c, weight, value, totalW }) {
 function DetailView({ listing, onBack }) {
   const { Panel, ScoreGauge, ScoreRadar, Badge, Delta, Button, IconButton, Card } = DS;
   const l = listing || PEPITE_DATA.LISTINGS[0];
+  const [fav, setFav] = React.useState(!!(window.PepiteFav && window.PepiteFav.has(l.id)));
   const totalW = Object.values(WEIGHTS).reduce((a, b) => a + b, 0);
   const deltaPct = Math.round(((l.ppm2 - l.marketPpm2) / l.marketPpm2) * 1000) / 10;
   const axes = CRITERIA.map((c) => ({ short: c.short, label: c.label, value: l.crit[c.key] }));
@@ -73,8 +77,10 @@ function DetailView({ listing, onBack }) {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Button variant="secondary" size="md" leftIcon={<Icon name="eye" size={15} />}>Voir l'annonce</Button>
-          <Button variant="gold" size="md" leftIcon={<Icon name="star" size={15} />}>Suivre</Button>
+          <Button variant="secondary" size="md" leftIcon={<Icon name="eye" size={15} />}
+            onClick={() => { if (l.url) window.open(l.url, '_blank', 'noopener'); }}>Voir l'annonce</Button>
+          <Button variant={fav ? 'secondary' : 'gold'} size="md" leftIcon={<Icon name="star" size={15} />}
+            onClick={() => setFav(window.PepiteFav.toggle(l.id))}>{fav ? 'Suivi ✓' : 'Suivre'}</Button>
         </div>
       </div>
 
@@ -83,7 +89,7 @@ function DetailView({ listing, onBack }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Panel noPadding style={{ overflow: 'hidden' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 2, background: 'var(--border-subtle)' }}>
-              <div style={{ background: 'var(--surface-1)', padding: 2 }}><PhotoBlock idx={1} total={l.photos} big /></div>
+              <div style={{ background: 'var(--surface-1)', padding: 2 }}><PhotoBlock idx={1} total={l.photos} big src={(l.photoUrls || [])[0]} /></div>
               <div style={{ position: 'relative', background: 'var(--bg-sunken)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(var(--border-subtle) 1px,transparent 1px),linear-gradient(90deg,var(--border-subtle) 1px,transparent 1px)', backgroundSize: '24px 24px', opacity: 0.4 }} />
                 <div style={{ textAlign: 'center', color: 'var(--text-faint)', zIndex: 1 }}>
@@ -94,7 +100,7 @@ function DetailView({ listing, onBack }) {
               </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 6, padding: 10 }}>
-              {Array.from({ length: 6 }).map((_, i) => <PhotoBlock key={i} idx={i + 2} total={l.photos} />)}
+              {Array.from({ length: 6 }).map((_, i) => <PhotoBlock key={i} idx={i + 2} total={l.photos} src={(l.photoUrls || [])[i + 1]} />)}
             </div>
           </Panel>
 

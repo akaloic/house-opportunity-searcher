@@ -23,8 +23,8 @@ dashboard = ["streamlit>=1.36", "pandas>=2.2"]
 alert = ["requests>=2.32"]
 # Cache/queue/rate-limit distribué.
 infra = ["redis>=5.0"]
-# Outillage dev.
-dev = ["pytest>=8", "mypy>=1.10", "ruff>=0.5"]
+# Outillage dev (playwright = tests e2e navigateur du dashboard, cf tests/test_dashboard_e2e.py).
+dev = ["pytest>=8", "mypy>=1.10", "ruff>=0.5", "playwright>=1.40"]
 
 [project.scripts]
 chasseur = "chasseur.cli:main"

@@ -154,7 +154,10 @@ CHASSEUR_ALERT__TELEGRAM_BOT_TOKEN=...     # alerting (dry-run par défaut)
 
 ```bash
 pip install -e ".[dev]"
-pytest                       # 30 tests : scoring, NLP, travaux, store, pipeline, webexport
+pytest                       # tests unitaires offline : scoring, NLP, travaux, store, pipeline, webexport
+
+# e2e navigateur du dashboard (Chrome headless) : carte, photos, nav, "Voir l'annonce", tri, favoris
+CHASSEUR_E2E=1 pytest tests/test_dashboard_e2e.py
 ruff check . && mypy src     # lint + typage strict
 ```
 

@@ -27,7 +27,8 @@
       {"ts": "2026-05-30T09:00:00", "price": 268000}
     ],
     "is_professional": false,
-    "diffusion_count": 3
+    "diffusion_count": 3,
+    "raw": {"photo_urls": ["data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"]}
   },
   {
     "source": "sample",

@@ -63,6 +63,7 @@ window.PEPITE_DATA = {
   "LISTINGS": [
     {
       "id": "cb-001",
+      "url": "https://example.invalid/annonce/cb-001",
       "score": 82,
       "title": "T2 lumineux 44m2 - Courbevoie",
       "addr": "Courbevoie 92400",
@@ -76,8 +77,13 @@ window.PEPITE_DATA = {
       "marketPpm2": 7300,
       "dpe": "F",
       "source": "Échantillon",
-      "freshMin": 123116,
-      "photos": 0,
+      "freshMin": 124050,
+      "photos": 1,
+      "photoUrls": [
+        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+      ],
+      "lat": 48.905,
+      "lon": 2.267,
       "metro": [
         {
           "line": "M15",
@@ -110,6 +116,7 @@ window.PEPITE_DATA = {
     },
     {
       "id": "co-003",
+      "url": "https://example.invalid/annonce/co-003",
       "score": 65,
       "title": "3 pieces 65m2 a renover - Colombes",
       "addr": "Colombes 92700",
@@ -123,8 +130,11 @@ window.PEPITE_DATA = {
       "marketPpm2": 5600,
       "dpe": "G",
       "source": "Échantillon",
-      "freshMin": 222416,
+      "freshMin": 223350,
       "photos": 0,
+      "photoUrls": [],
+      "lat": 48.923,
+      "lon": 2.254,
       "metro": [
         {
           "line": "M15",
@@ -162,6 +172,7 @@ window.PEPITE_DATA = {
     },
     {
       "id": "as-002",
+      "url": "https://example.invalid/annonce/as-002",
       "score": 43,
       "title": "Souplex atypique 38m2 - Asnieres",
       "addr": "Asnieres-sur-Seine 92600",
@@ -175,8 +186,11 @@ window.PEPITE_DATA = {
       "marketPpm2": 7000,
       "dpe": "E",
       "source": "Échantillon",
-      "freshMin": 5936,
+      "freshMin": 6870,
       "photos": 0,
+      "photoUrls": [],
+      "lat": 48.917,
+      "lon": 2.288,
       "metro": [
         {
           "line": "M15",
@@ -198,7 +212,7 @@ window.PEPITE_DATA = {
         "decote": 78,
         "futur_transport": 16,
         "signaux_vendeur": 50,
-        "anciennete": 6,
+        "anciennete": 8,
         "dpe_travaux": 50,
         "charges": 69,
         "acces_actuel": 50
@@ -261,25 +275,25 @@ window.PEPITE_DATA = {
   ],
   "LOGS": [
     {
-      "time": "20:56:13",
+      "time": "12:30:06",
       "level": "debug",
       "source": "sample",
       "message": "pu-004 exclu (budget)"
     },
     {
-      "time": "20:56:13",
+      "time": "12:30:06",
       "level": "info",
       "source": "sample",
       "message": "co-003 scoré 65 (interesting)"
     },
     {
-      "time": "20:56:13",
+      "time": "12:30:06",
       "level": "info",
       "source": "sample",
       "message": "as-002 scoré 43 (watch)"
     },
     {
-      "time": "20:56:13",
+      "time": "12:30:06",
       "level": "ok",
       "source": "sample",
       "message": "cb-001 scoré 82 (hot)"
