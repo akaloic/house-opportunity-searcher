@@ -10,7 +10,9 @@ export function StatCard({ label, value, unit, delta, deltaTone, icon, accent = 
     <div style={{
       display: 'flex', flexDirection: 'column', gap: 10, padding: 16,
       background: 'var(--surface-1)', border: '1px solid var(--border-subtle)',
-      borderRadius: 'var(--radius-lg)', minWidth: 0, ...style,
+      borderRadius: 'var(--radius-lg)', minWidth: 0,
+      WebkitBackdropFilter: 'var(--glass-blur)', backdropFilter: 'var(--glass-blur)',
+      boxShadow: 'var(--glass-edge), var(--shadow-1)', ...style,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
         <span className="eyebrow" style={{ color: 'var(--text-muted)' }}>{label}</span>

@@ -10,7 +10,8 @@ export function Card({ padding = 'md', interactive = false, glow = false, childr
       style={{
         background: 'var(--surface-1)', border: '1px solid var(--border-subtle)',
         borderRadius: 'var(--radius-lg)', padding: pad,
-        boxShadow: glow ? 'var(--glow-gold)' : 'var(--shadow-1)',
+        WebkitBackdropFilter: 'var(--glass-blur)', backdropFilter: 'var(--glass-blur)',
+        boxShadow: (glow ? 'var(--glow-gold)' : 'var(--shadow-1)') + ', var(--glass-edge)',
         transition: 'border-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out)',
         cursor: interactive ? 'pointer' : 'default', ...style,
       }}

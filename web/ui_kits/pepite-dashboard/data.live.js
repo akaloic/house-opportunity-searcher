@@ -77,7 +77,7 @@ window.PEPITE_DATA = {
       "marketPpm2": 7300,
       "dpe": "F",
       "source": "Échantillon",
-      "freshMin": 124050,
+      "freshMin": 124242,
       "photos": 1,
       "photoUrls": [
         "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
@@ -130,7 +130,7 @@ window.PEPITE_DATA = {
       "marketPpm2": 5600,
       "dpe": "G",
       "source": "Échantillon",
-      "freshMin": 223350,
+      "freshMin": 223542,
       "photos": 0,
       "photoUrls": [],
       "lat": 48.923,
@@ -186,7 +186,7 @@ window.PEPITE_DATA = {
       "marketPpm2": 7000,
       "dpe": "E",
       "source": "Échantillon",
-      "freshMin": 6870,
+      "freshMin": 7062,
       "photos": 0,
       "photoUrls": [],
       "lat": 48.917,
@@ -275,25 +275,25 @@ window.PEPITE_DATA = {
   ],
   "LOGS": [
     {
-      "time": "12:30:06",
+      "time": "15:42:19",
       "level": "debug",
       "source": "sample",
       "message": "pu-004 exclu (budget)"
     },
     {
-      "time": "12:30:06",
+      "time": "15:42:19",
       "level": "info",
       "source": "sample",
       "message": "co-003 scoré 65 (interesting)"
     },
     {
-      "time": "12:30:06",
+      "time": "15:42:19",
       "level": "info",
       "source": "sample",
       "message": "as-002 scoré 43 (watch)"
     },
     {
-      "time": "12:30:06",
+      "time": "15:42:19",
       "level": "ok",
       "source": "sample",
       "message": "cb-001 scoré 82 (hot)"

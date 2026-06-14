@@ -1,0 +1,97 @@
+/* ============================================================
+   PÉPITE · LIQUID GLASS
+   Surcouche translucide (importée EN DERNIER depuis styles.css).
+   Surcharge les tokens de surface en verre dépoli, pose un fond
+   vibrant qui transparaît, et applique le frost (backdrop-filter)
+   sur les grandes surfaces (Panel=<section>, Sidebar=<aside>).
+   ============================================================ */
+:root {
+  /* ---- Fond profond ---- */
+  --bg-sunken: #04050a;
+  --bg-base:   #06070e;
+
+  /* ---- Surfaces = verre (blanc translucide sur fond sombre) ---- */
+  --surface-1: rgba(255, 255, 255, 0.055);
+  --surface-2: rgba(255, 255, 255, 0.090);
+  --surface-3: rgba(255, 255, 255, 0.130);
+  --surface-4: rgba(255, 255, 255, 0.190);
+
+  /* ---- Bordures = arêtes de verre ---- */
+  --border-subtle:  rgba(255, 255, 255, 0.10);
+  --border-default: rgba(255, 255, 255, 0.18);
+  --border-strong:  rgba(255, 255, 255, 0.32);
+
+  /* ---- Rayons plus généreux (galets de verre) ---- */
+  --radius-xs:  6px;
+  --radius-sm:  9px;
+  --radius-md:  13px;
+  --radius-lg:  20px;
+  --radius-xl:  26px;
+  --radius-2xl: 32px;
+
+  /* ---- Ombres douces ---- */
+  --shadow-1: 0 2px 10px rgba(0, 0, 0, 0.30);
+  --shadow-2: 0 10px 34px rgba(0, 0, 0, 0.42);
+  --shadow-3: 0 18px 50px rgba(0, 0, 0, 0.52);
+
+  --surface-card:  var(--surface-1);
+  --surface-raised: var(--surface-2);
+  --surface-input: var(--surface-3);
+
+  /* ---- Recette verre ---- */
+  --glass-blur: blur(22px) saturate(185%);
+  --glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.22), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* ---- Fond vibrant (le verre le réfracte) ---- */
+html, body { height: 100%; }
+body {
+  background:
+    radial-gradient(1100px 760px at 6% -10%,  rgba(99, 102, 241, 0.34), transparent 60%),
+    radial-gradient(980px 720px at 100% 2%,   rgba(45, 212, 167, 0.24), transparent 58%),
+    radial-gradient(1040px 840px at 86% 110%, rgba(167, 139, 250, 0.28), transparent 60%),
+    radial-gradient(840px 700px at 10% 116%,  rgba(242, 179, 61, 0.16), transparent 60%),
+    #06070e;
+  background-attachment: fixed;
+}
+
+/* ---- Blobs liquides en lente dérive (GPU) ---- */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -25%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(440px 440px at 28% 38%, rgba(45, 212, 167, 0.20), transparent 62%),
+    radial-gradient(480px 480px at 74% 64%, rgba(99, 102, 241, 0.22), transparent 62%);
+  filter: blur(34px);
+  animation: pepite-liquid 26s var(--ease-in-out) infinite alternate;
+  will-change: transform;
+}
+@keyframes pepite-liquid {
+  0%   { transform: translate3d(-3%, -2%, 0) scale(1); }
+  50%  { transform: translate3d(4%, 3%, 0) scale(1.08); }
+  100% { transform: translate3d(2%, -4%, 0) scale(1.05); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; }
+}
+
+/* ---- Frost sur les grandes surfaces ---- */
+#app section,
+#app aside {
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-edge), var(--shadow-2);
+}
+
+/* ---- Scrollbars discrètes, raccord verre ---- */
+#app ::-webkit-scrollbar { width: 10px; height: 10px; }
+#app ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+#app ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.24); background-clip: content-box; }

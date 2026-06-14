@@ -14,13 +14,14 @@ function Fact({ icon, label, value }) {
   );
 }
 
-function PhotoBlock({ idx, total, big, src }) {
+function PhotoBlock({ idx, total, big, src, onClick }) {
   return (
-    <div style={{
+    <div onClick={src ? onClick : undefined} title={src ? 'Agrandir' : undefined} style={{
       position: 'relative', borderRadius: 'var(--radius-md)', overflow: 'hidden',
       background: `linear-gradient(135deg, var(--surface-3), var(--surface-2))`,
       border: '1px solid var(--border-subtle)', aspectRatio: big ? '16/10' : '1/1',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
+      cursor: src ? 'zoom-in' : 'default',
     }}>
       {src
         ? <img src={src} loading="lazy" alt="" referrerPolicy="no-referrer" onError={(e) => { e.currentTarget.style.display = 'none'; }}
@@ -29,6 +30,19 @@ function PhotoBlock({ idx, total, big, src }) {
       {big && total > 0 && <span style={{ position: 'absolute', bottom: 8, right: 9, fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-faint)', background: 'rgba(6,8,12,0.7)', padding: '2px 6px', borderRadius: 4 }}>{idx}/{total}</span>}
     </div>
   );
+}
+
+function lbBtn(pos) {
+  const base = {
+    position: 'absolute', width: 44, height: 44, borderRadius: 'var(--radius-pill)',
+    background: 'rgba(255,255,255,0.10)', WebkitBackdropFilter: 'blur(12px)', backdropFilter: 'blur(12px)',
+    border: '1px solid var(--border-default)', color: 'var(--text-strong)', cursor: 'pointer',
+    fontSize: 26, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontFamily: 'var(--font-sans)', paddingBottom: 4,
+  };
+  if (pos === 'left') return { ...base, left: 24, top: '50%', transform: 'translateY(-50%)' };
+  if (pos === 'right') return { ...base, right: 24, top: '50%', transform: 'translateY(-50%)' };
+  return { ...base, top: 20, right: 24, fontSize: 22, paddingBottom: 6 };
 }
 
 function Contribution({ c, weight, value, totalW }) {
@@ -54,6 +68,18 @@ function DetailView({ listing, onBack }) {
   const { Panel, ScoreGauge, ScoreRadar, Badge, Delta, Button, IconButton, Card } = DS;
   const l = listing || PEPITE_DATA.LISTINGS[0];
   const [fav, setFav] = React.useState(!!(window.PepiteFav && window.PepiteFav.has(l.id)));
+  const photos = l.photoUrls || [];
+  const [lb, setLb] = React.useState(-1);
+  React.useEffect(() => {
+    if (lb < 0 || !photos.length) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setLb(-1);
+      else if (e.key === 'ArrowRight') setLb((i) => (i + 1) % photos.length);
+      else if (e.key === 'ArrowLeft') setLb((i) => (i - 1 + photos.length) % photos.length);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lb, photos.length]);
   const totalW = Object.values(WEIGHTS).reduce((a, b) => a + b, 0);
   const deltaPct = Math.round(((l.ppm2 - l.marketPpm2) / l.marketPpm2) * 1000) / 10;
   const axes = CRITERIA.map((c) => ({ short: c.short, label: c.label, value: l.crit[c.key] }));
@@ -89,7 +115,7 @@ function DetailView({ listing, onBack }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Panel noPadding style={{ overflow: 'hidden' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 2, background: 'var(--border-subtle)' }}>
-              <div style={{ background: 'var(--surface-1)', padding: 2 }}><PhotoBlock idx={1} total={l.photos} big src={(l.photoUrls || [])[0]} /></div>
+              <div style={{ background: 'var(--surface-1)', padding: 2 }}><PhotoBlock idx={1} total={l.photos} big src={photos[0]} onClick={() => setLb(0)} /></div>
               <div style={{ position: 'relative', background: 'var(--bg-sunken)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(var(--border-subtle) 1px,transparent 1px),linear-gradient(90deg,var(--border-subtle) 1px,transparent 1px)', backgroundSize: '24px 24px', opacity: 0.4 }} />
                 <div style={{ textAlign: 'center', color: 'var(--text-faint)', zIndex: 1 }}>
@@ -100,7 +126,7 @@ function DetailView({ listing, onBack }) {
               </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 6, padding: 10 }}>
-              {Array.from({ length: 6 }).map((_, i) => <PhotoBlock key={i} idx={i + 2} total={l.photos} src={(l.photoUrls || [])[i + 1]} />)}
+              {Array.from({ length: 6 }).map((_, i) => <PhotoBlock key={i} idx={i + 2} total={l.photos} src={photos[i + 1]} onClick={() => setLb(i + 1)} />)}
             </div>
           </Panel>
 
@@ -193,6 +219,21 @@ function DetailView({ listing, onBack }) {
           </Panel>
         </div>
       </div>
+
+      {lb >= 0 && photos[lb] && (
+        <div onClick={() => setLb(-1)} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(4,5,12,0.74)', WebkitBackdropFilter: 'blur(18px) saturate(140%)', backdropFilter: 'blur(18px) saturate(140%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 48 }}>
+          <img src={photos[lb]} alt="" referrerPolicy="no-referrer" onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '92%', maxHeight: '92%', objectFit: 'contain', borderRadius: 'var(--radius-lg)', boxShadow: '0 30px 90px rgba(0,0,0,0.6)', border: '1px solid var(--border-default)' }} />
+          {photos.length > 1 && (
+            <React.Fragment>
+              <button onClick={(e) => { e.stopPropagation(); setLb((lb - 1 + photos.length) % photos.length); }} style={lbBtn('left')}>‹</button>
+              <button onClick={(e) => { e.stopPropagation(); setLb((lb + 1) % photos.length); }} style={lbBtn('right')}>›</button>
+            </React.Fragment>
+          )}
+          <button onClick={() => setLb(-1)} style={lbBtn('close')}>×</button>
+          <div style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-default)', background: 'rgba(255,255,255,0.08)', padding: '4px 12px', borderRadius: 'var(--radius-pill)', border: '1px solid var(--border-default)' }}>{lb + 1} / {photos.length}</div>
+        </div>
+      )}
     </div>
   );
 }

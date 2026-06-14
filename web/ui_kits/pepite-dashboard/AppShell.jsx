@@ -88,7 +88,8 @@ function Topbar({ view, onRefresh }) {
   return (
     <header style={{
       height: 'var(--topbar-h)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 14,
-      padding: '0 18px', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-base)',
+      padding: '0 18px', borderBottom: '1px solid var(--border-subtle)', background: 'var(--surface-1)',
+      backdropFilter: 'var(--glass-blur)', WebkitBackdropFilter: 'var(--glass-blur)',
     }}>
       <h1 style={{ margin: 0, fontSize: 'var(--text-md)', fontWeight: 600, color: 'var(--text-strong)', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>{titles[view]}</h1>
       <div style={{ flex: 1, maxWidth: 360 }}>
@@ -113,7 +114,7 @@ function Topbar({ view, onRefresh }) {
 
 function AppShell({ view, setView, onRefresh, children }) {
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100%', overflow: 'hidden', background: 'var(--bg-base)' }}>
+    <div style={{ display: 'flex', height: '100vh', width: '100%', overflow: 'hidden', background: 'transparent', position: 'relative', zIndex: 1 }}>
       <Sidebar view={view} setView={setView} />
       <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, height: '100%' }}>
         <Topbar view={view} onRefresh={onRefresh} />
