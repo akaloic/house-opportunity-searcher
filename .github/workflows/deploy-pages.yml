@@ -1,0 +1,59 @@
+name: Déploiement du dashboard Pépite (GitHub Pages)
+
+# Déploie le dashboard statique de veille immobilière sur GitHub Pages.
+# Données DÉMO uniquement (fixtures hors-ligne) — jamais de données scrapées réelles
+# en public (RGPD / CGU des portails). Le scraping live reste strictement local.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - 'src/**'
+      - 'fixtures/**'
+      - '.github/workflows/deploy-pages.yml'
+  schedule:
+    - cron: '17 6 * * *'   # rafraîchit la démo chaque jour à 06h17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Installer le moteur (coeur hors-ligne)
+        run: pip install -e .
+
+      - name: Générer les données DÉMO (spectre complet du scoring)
+        env:
+          CHASSEUR_REQUIRE_BALCONY: 'false'
+          CHASSEUR_MIN_FLOOR: '0'
+          CHASSEUR_BUDGET_MAX: '360000'
+          CHASSEUR_EXCLUDE_UNKNOWN_FLOOR: 'false'
+        run: chasseur export-web --demo
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

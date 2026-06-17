@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pépite · Veille immobilière IDF</title>
+  <meta http-equiv="refresh" content="0; url=./ui_kits/pepite-dashboard/index.html" />
+  <link rel="canonical" href="./ui_kits/pepite-dashboard/index.html" />
+  <style>
+    html,body{height:100%;margin:0;background:#0b0e14;color:#e6e9ef;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+    .wrap{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}
+    .logo{font-size:42px;font-weight:700;letter-spacing:-.02em;
+      background:linear-gradient(120deg,#7c9cff,#5ee0c0);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .sub{opacity:.6;font-size:14px}
+    a{color:#7c9cff}
+    .spin{width:26px;height:26px;border:3px solid #283042;border-top-color:#7c9cff;border-radius:50%;animation:s 1s linear infinite}
+    @keyframes s{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo">🎯 Pépite</div>
+    <div class="spin"></div>
+    <div class="sub">Chargement du dashboard de veille immobilière…</div>
+    <noscript><a href="./ui_kits/pepite-dashboard/index.html">Ouvrir le dashboard →</a></noscript>
+  </div>
+  <script>location.replace('./ui_kits/pepite-dashboard/index.html')</script>
+</body>
+</html>
