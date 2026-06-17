@@ -6,6 +6,8 @@ scorée (sous-scores neutralisés) — on ne rate jamais une pépite sur un bug 
 
 from __future__ import annotations
 
+import re
+import unicodedata
 from dataclasses import dataclass, field
 from datetime import date, datetime
 
@@ -42,6 +44,7 @@ class RunSummary:
     scored: int = 0
     alerts: int = 0
     excluded_budget: int = 0
+    excluded_filters: dict[str, int] = field(default_factory=dict)
     by_source: dict[str, dict[str, object]] = field(default_factory=dict)
     logs: list[dict[str, str]] = field(default_factory=list)
     outbox: list[str] = field(default_factory=list)  # messages d'alerte (dry-run)
@@ -74,8 +77,60 @@ def build_refs(settings: Settings) -> Refs:
     )
 
 
+def effective_has_balcony(listing: Listing, settings: Settings) -> bool:
+    """Vrai si l'annonce a un balcon : donnée structurée si dispo, sinon détection texte."""
+    if listing.has_balcony is not None:
+        return listing.has_balcony
+    text = f"{listing.title} {listing.description}".lower()
+    return any(kw.lower() in text for kw in settings.balcony_keywords)
+
+
+_FLOOR_RE = re.compile(r"(\d{1,2})\s*(?:er|eme|ere|re|e)?\s*etage")
+
+
+def _strip_accents(text: str) -> str:
+    return "".join(
+        c for c in unicodedata.normalize("NFD", text) if unicodedata.category(c) != "Mn"
+    )
+
+
+def infer_floor_from_text(text: str, settings: Settings) -> int | None:
+    """Déduit l'étage du TEXTE (RDC / 1er / Nᵉ étage) quand la donnée structurée manque."""
+    normalized = _strip_accents(text).lower()
+    if any(kw in normalized for kw in settings.ground_floor_keywords):
+        return 0
+    if any(kw in normalized for kw in settings.first_floor_keywords):
+        return 1
+    match = _FLOOR_RE.search(normalized)
+    return int(match.group(1)) if match else None
+
+
+def effective_floor(listing: Listing, settings: Settings) -> int | None:
+    """Étage retenu : structuré en priorité, sinon déduit du texte de l'annonce."""
+    if listing.floor is not None:
+        return listing.floor
+    return infer_floor_from_text(f"{listing.title} {listing.description}", settings)
+
+
 def passes_filters(listing: Listing, settings: Settings) -> tuple[bool, str | None]:
-    """Exclusion ferme AVANT scoring (l'investisseur ne perd pas de temps)."""
+    """Exclusion ferme AVANT scoring (l'investisseur ne perd pas de temps).
+
+    Critères disqualifiants (tous pilotés par la config) : type de bien (apparts),
+    étage plancher (RDC/1er exclus si connu), balcon obligatoire, budget, surface.
+    """
+    if (
+        settings.allowed_property_types
+        and listing.property_type.value not in settings.allowed_property_types
+    ):
+        return False, "type"
+    floor = effective_floor(listing, settings)
+    if floor is None:
+        if settings.exclude_unknown_floor:
+            return False, "floor_unknown"
+    elif floor < settings.min_floor:
+        return False, "floor"
+    if settings.require_balcony and not effective_has_balcony(listing, settings):
+        return False, "balcony"
     if listing.price > settings.budget_max:
         return False, "budget"
     if listing.surface_m2 < settings.surface_min:
@@ -178,6 +233,10 @@ def run_pipeline(
                 if not ok:
                     if reason == "budget":
                         summary.excluded_budget += 1
+                    if reason:
+                        summary.excluded_filters[reason] = (
+                            summary.excluded_filters.get(reason, 0) + 1
+                        )
                     summary.logs.append(
                         _event("debug", name, f"{listing.source_id} exclu ({reason})", now)
                     )

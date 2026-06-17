@@ -149,3 +149,98 @@ class StealthSession:
         with urllib.request.urlopen(request, timeout=20) as resp:  # noqa: S310
             body = resp.read().decode("utf-8", errors="replace")
             return FetchResult(getattr(resp, "status", 200), body, url)
+
+    # --- POST (API JSON type LeBonCoin) ----------------------------------- #
+    def post(
+        self,
+        url: str,
+        *,
+        json_body: object | None = None,
+        headers: dict[str, str] | None = None,
+        impersonate: str | None = None,
+    ) -> FetchResult:
+        domain = self._domain(url)
+        self._check_circuit(domain)
+        last_exc: Exception | None = None
+        for attempt in range(self._cfg.max_retries):
+            self._respect_rate(domain)
+            proxy = self._proxies.acquire()
+            try:
+                result = self._raw_post(
+                    url, json_body, headers, proxy, impersonate or self._cfg.impersonate
+                )
+                if result.status_code in (403, 429):
+                    if proxy:
+                        self._proxies.report_failure(proxy)
+                    raise AntibotError(f"{result.status_code} anti-bot sur {domain}")
+                self._record_success(domain)
+                if proxy:
+                    self._proxies.report_success(proxy)
+                return result
+            except AntibotError as exc:
+                last_exc = exc
+                self._record_failure(domain)
+                time.sleep(2**attempt)
+        raise last_exc or AntibotError(f"Échec POST sur {domain}")
+
+    def _raw_post(
+        self,
+        url: str,
+        json_body: object | None,
+        headers: dict[str, str] | None,
+        proxy: str | None,
+        impersonate: str,
+    ) -> FetchResult:
+        merged = fingerprint.headers_for(impersonate)
+        if json_body is not None:
+            merged.setdefault("Content-Type", "application/json")
+        if headers:
+            merged.update(headers)
+
+        if self._backend == "curl_cffi":
+            from curl_cffi import requests as creq  # type: ignore[import-not-found]
+
+            proxies = {"http": proxy, "https": proxy} if proxy else None
+            resp = creq.post(
+                url, json=json_body, headers=merged, impersonate=impersonate,
+                proxies=proxies, timeout=20,
+            )
+            return FetchResult(resp.status_code, resp.text, url)
+
+        if self._backend == "httpx":
+            import httpx
+
+            resp = httpx.post(url, json=json_body, headers=merged, proxy=proxy, timeout=20)
+            return FetchResult(resp.status_code, resp.text, str(resp.url))
+
+        import json as _json
+        import urllib.request
+
+        body = _json.dumps(json_body).encode("utf-8") if json_body is not None else None
+        request = urllib.request.Request(url, data=body, headers=merged, method="POST")
+        with urllib.request.urlopen(request, timeout=20) as resp:  # noqa: S310
+            text = resp.read().decode("utf-8", errors="replace")
+            return FetchResult(getattr(resp, "status", 200), text, url)
+
+    # --- résolution de challenge (FlareSolverr) --------------------------- #
+    @property
+    def can_solve(self) -> bool:
+        """FlareSolverr est-il configuré ? (sinon les cibles DataDome/Cloudflare sont hors d'atteinte)"""
+        return bool(self._cfg.flaresolverr_url)
+
+    def solve(self, url: str) -> FetchResult:
+        """Résout un challenge JS via FlareSolverr et renvoie le HTML rendu + statut."""
+        if not self._cfg.flaresolverr_url:
+            raise AntibotError("FlareSolverr non configuré (antibot.flaresolverr_url).")
+        from chasseur.antibot.flaresolverr import FlareSolverrClient
+
+        domain = self._domain(url)
+        self._check_circuit(domain)
+        self._respect_rate(domain)
+        try:
+            solution = FlareSolverrClient(self._cfg.flaresolverr_url).get(url)
+        except Exception as exc:  # indispo / timeout FlareSolverr
+            self._record_failure(domain)
+            raise AntibotError(f"FlareSolverr a échoué sur {domain} : {exc}") from exc
+        self._record_success(domain)
+        return FetchResult(solution.status or 200, solution.html, url)

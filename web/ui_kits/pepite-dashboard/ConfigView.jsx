@@ -12,6 +12,12 @@ const PRESETS = {
   'Cash-flow': { decote: 30, futur_transport: 14, signaux_vendeur: 10, anciennete: 8, dpe_travaux: 10, charges: 16, acces_actuel: 12 },
 };
 
+// Persistance locale de la config (même esprit que window.PepiteFav) + barème DPE.
+const CFG_KEY = 'pepite_config';
+const DPE_RANK = { A: 0, B: 1, C: 2, D: 3, E: 4, F: 5, G: 6 };
+function loadCfg() { try { return JSON.parse(localStorage.getItem(CFG_KEY) || 'null') || {}; } catch (e) { return {}; } }
+function saveCfg(c) { try { localStorage.setItem(CFG_KEY, JSON.stringify(c)); } catch (e) {} }
+
 function ZoneChip({ label, on, onToggle }) {
   return (
     <button onClick={onToggle} style={{
@@ -30,24 +36,56 @@ function ZoneChip({ label, on, onToggle }) {
 
 function ConfigView() {
   const { Panel, RangeSlider, Switch, Select, Button, Badge, ScoreGauge } = DS;
-  const [weights, setWeights] = React.useState({ ...WEIGHTS });
-  const [zones, setZones] = React.useState({ '92400': true, '92800': true, '92000': true, '92700': false, '75015': false });
-  const [priceMax, setPriceMax] = React.useState(310);
-  const [surfMin, setSurfMin] = React.useState(25);
-  const [alertEmail, setAlertEmail] = React.useState(true);
-  const [threshold, setThreshold] = React.useState(70);
+  const saved = React.useMemo(loadCfg, []);
+  const DEFAULT_ZONES = { '92400': true, '92800': true, '92000': true, '92700': false, '75015': false };
+  const [weights, setWeights] = React.useState({ ...WEIGHTS, ...(saved.weights || {}) });
+  const [zones, setZones] = React.useState(saved.zones || { ...DEFAULT_ZONES });
+  const [priceMax, setPriceMax] = React.useState(saved.priceMax ?? 310);
+  const [surfMin, setSurfMin] = React.useState(saved.surfMin ?? 25);
+  const [alertEmail, setAlertEmail] = React.useState(saved.alertEmail ?? true);
+  const [instant, setInstant] = React.useState(saved.instant ?? false);
+  const [threshold, setThreshold] = React.useState(saved.threshold ?? 70);
+  const [dpe, setDpe] = React.useState(saved.dpe || 'D');
+  const [ptype, setPtype] = React.useState(saved.ptype || 'appt');
+  const [digest, setDigest] = React.useState(saved.digest || 'instant');
   const [dirty, setDirty] = React.useState(false);
+  const [savedTick, setSavedTick] = React.useState(false);
 
-  const totalW = Object.values(weights).reduce((a, b) => a + b, 0);
+  const totalW = Object.values(weights).reduce((a, b) => a + b, 0) || 1;
   const setW = (k, v) => { setWeights((w) => ({ ...w, [k]: v })); setDirty(true); };
   const applyPreset = (name) => { setWeights({ ...PRESETS[name] }); setDirty(true); };
+  const touch = (fn) => (v) => { fn(v); setDirty(true); };
 
-  // live recompute
-  const preview = LISTINGS.map((l) => {
+  const save = () => {
+    saveCfg({ weights, zones, priceMax, surfMin, alertEmail, instant, threshold, dpe, ptype, digest });
+    setDirty(false);
+    setSavedTick(true);
+    setTimeout(() => setSavedTick(false), 2200);
+  };
+  const reset = () => {
+    setWeights({ ...WEIGHTS }); setZones({ ...DEFAULT_ZONES });
+    setPriceMax(310); setSurfMin(25); setAlertEmail(true); setInstant(false);
+    setThreshold(70); setDpe('D'); setPtype('appt'); setDigest('instant');
+    setDirty(true);
+  };
+
+  // filtres stricts — exclusion ferme AVANT le scoring (cf. CLAUDE.md §2), reflétée dans l'aperçu
+  const passesFilters = (l) => {
+    if (l.price > priceMax * 1000) return false;
+    if (l.surface < surfMin) return false;
+    if (dpe !== 'Tous' && DPE_RANK[l.dpe] != null && DPE_RANK[l.dpe] > (DPE_RANK[dpe] ?? 6)) return false;
+    if (ptype === 'appt' && !/appart/i.test(l.title || '')) return false;
+    if (ptype === 'maison' && !/maison/i.test(l.title || '')) return false;
+    return true;
+  };
+
+  // re-scoring en direct (poids) sur l'échantillon filtré
+  const scored = LISTINGS.filter(passesFilters).map((l) => {
     const s = CRITERIA.reduce((acc, c) => acc + l.crit[c.key] * weights[c.key], 0) / totalW;
     return { ...l, preview: Math.round(s) };
-  }).sort((a, b) => b.preview - a.preview).slice(0, 5);
-  const matches = preview.filter((l) => l.preview >= threshold).length;
+  }).sort((a, b) => b.preview - a.preview);
+  const preview = scored.slice(0, 5);
+  const matches = scored.filter((l) => l.preview >= threshold).length;
 
   return (
     <div style={{ padding: 18, display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 380px', gap: 14, alignItems: 'start' }}>
@@ -80,24 +118,29 @@ function ConfigView() {
 
         <Panel title="Filtres stricts" icon={<Icon name="filter" size={16} />} subtitle="Exclusion ferme — appliqués avant le scoring">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
-            <RangeSlider label="Prix maximum" value={priceMax} min={150} max={1200} step={10} accent="var(--gold-500)" valueSuffix="k€" onChange={setPriceMax} />
-            <RangeSlider label="Surface minimum" value={surfMin} min={10} max={120} accent="var(--viz-2)" valueSuffix=" m²" onChange={setSurfMin} />
+            <RangeSlider label="Prix maximum" value={priceMax} min={150} max={1200} step={10} accent="var(--gold-500)" valueSuffix="k€" onChange={touch(setPriceMax)} />
+            <RangeSlider label="Surface minimum" value={surfMin} min={10} max={120} accent="var(--viz-2)" valueSuffix=" m²" onChange={touch(setSurfMin)} />
           </div>
           <div style={{ marginTop: 16 }}>
             <div className="eyebrow" style={{ marginBottom: 9 }}>Zones géographiques</div>
             <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
               {Object.keys(zones).map((z) => <ZoneChip key={z} label={z} on={zones[z]} onToggle={() => { setZones((s) => ({ ...s, [z]: !s[z] })); setDirty(true); }} />)}
-              <button style={{ height: 28, padding: '0 11px', borderRadius: 'var(--radius-pill)', border: '1px dashed var(--border-strong)', background: 'transparent', color: 'var(--text-faint)', fontSize: 'var(--text-xs)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}><Icon name="plus" size={12} />Zone</button>
+              <button
+                onClick={() => {
+                  const z = (window.prompt('Code postal de la zone à ajouter (ex : 92110)') || '').trim();
+                  if (z) { setZones((s) => ({ ...s, [z]: true })); setDirty(true); }
+                }}
+                style={{ height: 28, padding: '0 11px', borderRadius: 'var(--radius-pill)', border: '1px dashed var(--border-strong)', background: 'transparent', color: 'var(--text-faint)', fontSize: 'var(--text-xs)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}><Icon name="plus" size={12} />Zone</button>
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginTop: 16 }}>
             <div>
               <div className="eyebrow" style={{ marginBottom: 7 }}>DPE maximum</div>
-              <Select size="sm" defaultValue="D"><option>B</option><option>C</option><option>D</option><option>E</option><option>Tous</option></Select>
+              <Select size="sm" value={dpe} onChange={(e) => { setDpe(e.target.value); setDirty(true); }}><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="Tous">Tous</option></Select>
             </div>
             <div>
               <div className="eyebrow" style={{ marginBottom: 7 }}>Type de bien</div>
-              <Select size="sm" defaultValue="appt"><option value="appt">Appartement</option><option value="maison">Maison</option><option value="tous">Tous</option></Select>
+              <Select size="sm" value={ptype} onChange={(e) => { setPtype(e.target.value); setDirty(true); }}><option value="appt">Appartement</option><option value="maison">Maison</option><option value="tous">Tous</option></Select>
             </div>
           </div>
         </Panel>
@@ -108,6 +151,7 @@ function ConfigView() {
         <Panel title="Aperçu temps réel" icon={<Icon name="zap" size={16} />} subtitle="Re-classement instantané sur l'échantillon"
           actions={<Badge tone={matches > 0 ? 'gold' : 'neutral'} dot={matches > 0}>{matches} alertes</Badge>}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {preview.length === 0 && <div style={{ padding: '18px 4px', textAlign: 'center', color: 'var(--text-faint)', fontSize: 'var(--text-xs)' }}>Aucun bien ne passe les filtres stricts.</div>}
             {preview.map((l, i) => {
               const diff = l.preview - l.score;
               return (
@@ -129,27 +173,27 @@ function ConfigView() {
 
         <Panel title="Alertes" icon={<Icon name="bell" size={16} />}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <RangeSlider label="Seuil d'alerte (score min.)" value={threshold} min={40} max={95} accent="var(--gold-500)" onChange={setThreshold} />
+            <RangeSlider label="Seuil d'alerte (score min.)" value={threshold} min={40} max={95} accent="var(--gold-500)" onChange={touch(setThreshold)} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 11, paddingTop: 4 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 'var(--text-sm)', color: 'var(--text-default)' }}><Icon name="mail" size={15} color="var(--text-muted)" />Alerte e-mail</span>
-                <Switch checked={alertEmail} onChange={setAlertEmail} />
+                <Switch checked={alertEmail} onChange={touch(setAlertEmail)} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 'var(--text-sm)', color: 'var(--text-default)' }}><Icon name="zap" size={15} color="var(--text-muted)" />Notification instantanée</span>
-                <Switch defaultChecked={false} />
+                <Switch checked={instant} onChange={touch(setInstant)} />
               </div>
             </div>
             <div style={{ paddingTop: 4 }}>
               <div className="eyebrow" style={{ marginBottom: 7 }}>Fréquence du digest</div>
-              <Select size="sm" defaultValue="instant"><option value="instant">Instantané</option><option value="2h">Toutes les 2 h</option><option value="day">Quotidien · 8h</option></Select>
+              <Select size="sm" value={digest} onChange={(e) => { setDigest(e.target.value); setDirty(true); }}><option value="instant">Instantané</option><option value="2h">Toutes les 2 h</option><option value="day">Quotidien · 8h</option></Select>
             </div>
           </div>
         </Panel>
 
         <div style={{ display: 'flex', gap: 8 }}>
-          <Button variant="ghost" size="md" onClick={() => { setWeights({ ...WEIGHTS }); setDirty(false); }}>Réinitialiser</Button>
-          <Button variant="primary" size="md" fullWidth disabled={!dirty} leftIcon={<Icon name="check" size={15} />}>Enregistrer la config</Button>
+          <Button variant="ghost" size="md" onClick={reset}>Réinitialiser</Button>
+          <Button variant="primary" size="md" fullWidth disabled={!dirty} onClick={save} leftIcon={<Icon name="check" size={15} />}>{savedTick ? 'Enregistré ✓' : 'Enregistrer la config'}</Button>
         </div>
       </div>
     </div>

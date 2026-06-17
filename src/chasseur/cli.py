@@ -102,6 +102,41 @@ def cmd_serve_web(args: argparse.Namespace, settings: Settings) -> int:
     return 0
 
 
+def cmd_test_email(args: argparse.Namespace, settings: Settings) -> int:
+    """Envoie un e-mail de test pour valider la config SMTP (envoi RÉEL, pas dry-run)."""
+    from chasseur.alerting.email import EmailNotifier
+
+    cfg = settings.alert
+    recipient = args.to or cfg.email_to
+    if not cfg.smtp_host or not recipient:
+        print("❌ SMTP non configuré. Renseigne dans .env :")
+        print("   CHASSEUR_ALERT__SMTP_HOST=smtp.gmail.com")
+        print("   CHASSEUR_ALERT__SMTP_PORT=587   (ou 465 + CHASSEUR_ALERT__SMTP_SSL=true)")
+        print("   CHASSEUR_ALERT__SMTP_USER=...    CHASSEUR_ALERT__SMTP_PASSWORD=...")
+        print("   CHASSEUR_ALERT__EMAIL_TO=destinataire@exemple.fr")
+        return 1
+    body = (
+        "Ceci est un e-mail de test du Robot-Chasseur immobilier.\n\n"
+        f"SMTP : {cfg.smtp_host}:{cfg.smtp_port} (ssl={cfg.smtp_ssl})\n"
+        "Si tu lis ce message, l'envoi d'alertes e-mail fonctionne ✅\n"
+    )
+    try:
+        EmailNotifier(
+            cfg.smtp_host,
+            cfg.smtp_port,
+            cfg.smtp_user,
+            cfg.smtp_password,
+            recipient,
+            use_ssl=cfg.smtp_ssl,
+            sender=cfg.email_from,
+        ).send("🏠 Chasseur — e-mail de test", body)
+    except Exception as exc:  # noqa: BLE001
+        print(f"❌ Échec de l'envoi : {exc}")
+        return 1
+    print(f"✅ E-mail de test envoyé à {recipient} via {cfg.smtp_host}:{cfg.smtp_port}.")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="chasseur", description="Robot-chasseur immobilier IDF")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -128,6 +163,10 @@ def build_parser() -> argparse.ArgumentParser:
     p_serve.add_argument("--port", type=int, default=8000)
     p_serve.add_argument("--dir", default=str(DEFAULT_WEB_DIR), help="Racine web à servir")
     p_serve.set_defaults(func=cmd_serve_web)
+
+    p_mail = sub.add_parser("test-email", help="Envoie un e-mail de test (vérifie la config SMTP)")
+    p_mail.add_argument("--to", default=None, help="Destinataire (sinon CHASSEUR_ALERT__EMAIL_TO)")
+    p_mail.set_defaults(func=cmd_test_email)
 
     return parser
 

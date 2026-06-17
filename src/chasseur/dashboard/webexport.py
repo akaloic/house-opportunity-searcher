@@ -14,7 +14,7 @@ from pathlib import Path
 
 from chasseur.config import Settings
 from chasseur.models import Source
-from chasseur.pipeline import RunSummary, ScoredListing
+from chasseur.pipeline import RunSummary, ScoredListing, effective_floor, effective_has_balcony
 
 # Nos 7 critères réels (mêmes clés que Score.sub_scores). icônes/accents = design tokens.
 CRITERIA: list[dict[str, str]] = [
@@ -84,7 +84,9 @@ def _map_listing(sl: ScoredListing, settings: Settings, now: datetime) -> dict[s
         for st in ctx.transport.future_stations[:3]
     ]
     x, y = _project(listing.lat, listing.lon)
-    floor = listing.floor or 0
+    eff_floor = effective_floor(listing, settings)
+    floor = eff_floor if eff_floor is not None else 0
+    floor_count = listing.floor_count if listing.floor_count is not None else max(floor, 0)
     photo_urls = listing.raw.get("photo_urls")
     photo_urls = photo_urls if isinstance(photo_urls, list) else []
     return {
@@ -98,7 +100,10 @@ def _map_listing(sl: ScoredListing, settings: Settings, now: datetime) -> dict[s
         "surface": round(listing.surface_m2),
         "rooms": listing.rooms or 0,
         "floor": floor,
-        "floors": floor,
+        "floors": floor_count,
+        "floorKnown": eff_floor is not None,
+        "balcon": effective_has_balcony(listing, settings),
+        "elevator": listing.has_elevator,
         "ppm2": round(listing.price_per_m2),
         "marketPpm2": round(ctx.market_ppm2) if ctx.market_ppm2 else round(listing.price_per_m2),
         "dpe": listing.dpe or "—",

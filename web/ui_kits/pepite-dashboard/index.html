@@ -56,16 +56,20 @@
     function App() {
       const [view, setView] = React.useState('dashboard');
       const [selected, setSelected] = React.useState(window.PEPITE_DATA.LISTINGS[0]);
-      const open = (l) => { setSelected(l); setView('detail'); };
+      const [query, setQuery] = React.useState('');
+      const [period, setPeriod] = React.useState('all');
+      const open = (l) => { if (!l) return; setSelected(l); setView('detail'); };
 
       let content = null;
-      if (view === 'dashboard') content = <window.DashboardView onOpen={open} />;
-      else if (view === 'detail') content = <window.DetailView listing={selected} onBack={() => setView('dashboard')} />;
+      if (view === 'dashboard') content = <window.DashboardView onOpen={open} query={query} period={period} />;
+      else if (view === 'detail') content = <window.DetailView listing={selected} onBack={() => setView('dashboard')} onOpen={open} />;
       else if (view === 'config') content = <window.ConfigView />;
       else if (view === 'monitoring') content = <window.MonitoringView />;
 
       return (
-        <window.AppShell view={view} setView={setView} onRefresh={() => window.location.reload()}>
+        <window.AppShell view={view} setView={setView} onRefresh={() => window.location.reload()}
+          query={query} setQuery={setQuery} period={period} setPeriod={setPeriod}
+          onOpen={open} goDashboard={() => setView('dashboard')}>
           <div key={view + (selected && selected.id)}>{content}</div>
         </window.AppShell>
       );

@@ -57,4 +57,6 @@ class Notifier:
                 self.cfg.smtp_user,
                 self.cfg.smtp_password,
                 self.cfg.email_to,
+                use_ssl=self.cfg.smtp_ssl,
+                sender=self.cfg.email_from,
             ).send(subject, body)

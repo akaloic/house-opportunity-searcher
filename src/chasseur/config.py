@@ -188,7 +188,9 @@ class AlertConfig(BaseModel):
     smtp_port: int = 587
     smtp_user: str | None = None
     smtp_password: str | None = None
+    smtp_ssl: bool = False  # True => SMTP_SSL (port 465) ; sinon STARTTLS (587) ou clair
     email_to: str | None = None
+    email_from: str | None = None  # expéditeur (défaut : smtp_user)
     cooldown_hours: float = 24.0  # anti-spam : ne pas re-alerter avant N heures
     dry_run: bool = True  # par défaut on n'envoie rien, on imprime
 
@@ -207,7 +209,24 @@ class Settings(BaseSettings):
     surface_min: float = 20.0
     surface_max: float = 200.0
 
-    enabled_scrapers: list[str] = Field(default_factory=lambda: ["sample"])
+    # --- Filtres éliminatoires (exclusion ferme AVANT scoring) ---
+    # L'investisseur ne perd pas de temps : ces critères disqualifient d'office.
+    allowed_property_types: list[str] = Field(default_factory=lambda: ["apartment"])
+    min_floor: int = 2  # exclut RDC (0) et 1er (1) quand l'étage est connu
+    exclude_unknown_floor: bool = False  # mode dégradé : étage inconnu => on garde
+    require_balcony: bool = True
+    balcony_keywords: list[str] = Field(default_factory=lambda: ["balcon", "loggia"])
+    # Détection RDC / 1er dans le TEXTE quand l'étage structuré manque (sans accents, minuscules)
+    ground_floor_keywords: list[str] = Field(
+        default_factory=lambda: [
+            "rez-de-chaussee", "rez de chaussee", "rdc", "rez-de-jardin", "rez de jardin"
+        ]
+    )
+    first_floor_keywords: list[str] = Field(
+        default_factory=lambda: ["1er etage", "premier etage", "1 er etage", "1e etage"]
+    )
+
+    enabled_scrapers: list[str] = Field(default_factory=lambda: ["bienici", "pap"])
 
     # Chemins (relatifs à la racine du repo)
     fixtures_path: Path = Path("fixtures/listings.sample.json")

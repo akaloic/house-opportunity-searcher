@@ -123,7 +123,9 @@ function PepiteRow({ l, selected, onSelect }) {
   );
 }
 
-function DashboardView({ onOpen }) {
+const PERIOD_MAX = { '24h': 1440, '7j': 10080, '30j': 43200 };
+
+function DashboardView({ onOpen, query, period }) {
   const { StatCard, Panel, Tabs, Badge } = DS;
   const listings = PEPITE_DATA.LISTINGS;
   const [sel, setSel] = React.useState(listings[0]);
@@ -135,11 +137,21 @@ function DashboardView({ onOpen }) {
     return () => window.removeEventListener('pepite-fav', h);
   }, []);
   const isFav = (l) => !!(window.PepiteFav && window.PepiteFav.has(l.id));
-  let ranked = [...listings];
+
+  // filtres topbar : recherche plein-texte + fenêtre de fraîcheur (freshMin en minutes)
+  const q = (query || '').trim().toLowerCase();
+  const maxAge = PERIOD_MAX[period] || Infinity;
+  const matchQ = (l) => !q || [l.title, l.quartier, l.addr, l.id].some((s) => String(s || '').toLowerCase().includes(q));
+  const matchAge = (l) => typeof l.freshMin !== 'number' || l.freshMin <= maxAge;
+  const base = listings.filter((l) => matchQ(l) && matchAge(l));
+
+  let ranked = [...base];
   if (sort === 'fav') ranked = ranked.filter(isFav).sort((a, b) => b.score - a.score);
   else if (sort === 'frais') ranked.sort((a, b) => a.freshMin - b.freshMin);
   else ranked.sort((a, b) => b.score - a.score);
-  const select = (l) => setSel(l);
+  // un clic sur une annonce (flux OU pin carte) ouvre directement la fiche détail
+  const open = (l) => { setSel(l); onOpen(l); };
+  const current = base.find((l) => sel && l.id === sel.id) || base[0] || null;
 
   const avg = listings.length ? Math.round(listings.reduce((s, l) => s + l.score, 0) / listings.length) : 0;
   const medianPpm2 = (() => {
@@ -163,26 +175,28 @@ function DashboardView({ onOpen }) {
           icon={<Icon name="map" size={16} />} noPadding
           actions={<Badge tone="neutral">OSM + DVF</Badge>}
           style={{ minHeight: 0 }} bodyStyle={{ padding: 10 }}>
-          <MapPanel listings={listings} selectedId={sel.id} onSelect={select} />
+          <MapPanel listings={base} selectedId={current && current.id} onSelect={open} />
         </Panel>
 
-        <Panel title="Flux de pépites" subtitle="Trié par score · temps réel" icon={<Icon name="activity" size={16} />}
+        <Panel title="Flux de pépites" subtitle="Clic sur une annonce → fiche détail" icon={<Icon name="activity" size={16} />}
           noPadding style={{ minHeight: 0 }}
-          actions={<Tabs size="sm" value={sort} onChange={setSort} tabs={[{ id: 'score', label: 'Score' }, { id: 'frais', label: 'Frais' }, { id: 'fav', label: 'Favoris', count: listings.filter(isFav).length }]} />}>
+          actions={<Tabs size="sm" value={sort} onChange={setSort} tabs={[{ id: 'score', label: 'Score' }, { id: 'frais', label: 'Frais' }, { id: 'fav', label: 'Favoris', count: base.filter(isFav).length }]} />}>
           <div style={{ overflow: 'auto', maxHeight: 520 }}>
-            {ranked.map((l) => <PepiteRow key={l.id} l={l} selected={l.id === sel.id} onSelect={select} />)}
+            {ranked.length === 0
+              ? <div style={{ padding: '28px 16px', textAlign: 'center', color: 'var(--text-faint)', fontSize: 'var(--text-sm)' }}>Aucune annonce ne correspond{q ? ` à « ${query} »` : ''}.</div>
+              : ranked.map((l) => <PepiteRow key={l.id} l={l} selected={!!(current && l.id === current.id)} onSelect={open} />)}
           </div>
         </Panel>
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <button onClick={() => onOpen(sel)} style={{
+        <button onClick={() => onOpen(current)} disabled={!current} style={{
           display: 'inline-flex', alignItems: 'center', gap: 7, height: 34, padding: '0 14px',
-          background: 'var(--brand-500)', color: 'var(--text-on-brand)', border: 'none',
+          background: current ? 'var(--brand-500)' : 'var(--surface-3)', color: current ? 'var(--text-on-brand)' : 'var(--text-faint)', border: 'none',
           borderRadius: 'var(--radius-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--text-sm)',
-          fontWeight: 600, cursor: 'pointer', boxShadow: '0 2px 8px rgba(45,212,167,0.25)',
+          fontWeight: 600, cursor: current ? 'pointer' : 'not-allowed', boxShadow: current ? '0 2px 8px rgba(45,212,167,0.25)' : 'none',
         }}>
-          Ouvrir la fiche · {sel.id} <Icon name="arrow-up-right" size={15} />
+          Ouvrir la fiche{current ? ` · ${current.id}` : ''} <Icon name="arrow-up-right" size={15} />
         </button>
       </div>
     </div>

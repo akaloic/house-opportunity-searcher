@@ -64,9 +64,19 @@ function Contribution({ c, weight, value, totalW }) {
   );
 }
 
-function DetailView({ listing, onBack }) {
+function DetailView({ listing, onBack, onOpen }) {
   const { Panel, ScoreGauge, ScoreRadar, Badge, Delta, Button, IconButton, Card } = DS;
   const l = listing || PEPITE_DATA.LISTINGS[0];
+  // navigation entre offres (ordre du flux exporté, trié par score)
+  const all = PEPITE_DATA.LISTINGS;
+  const idx = Math.max(0, all.findIndex((x) => x.id === l.id));
+  const prev = all[idx - 1] || null;
+  const next = all[idx + 1] || null;
+  const go = (t) => { if (t && onOpen) onOpen(t); };
+  // étage précis : "4ᵉ / 6", "RDC / 4", ou "n.c." si l'étage est inconnu
+  const floorBase = l.floorKnown === false ? 'n.c.' : (l.floor === 0 ? 'RDC' : `${l.floor}ᵉ`);
+  const floorVal = (l.floorKnown !== false && l.floors > 0) ? `${floorBase} / ${l.floors}` : floorBase;
+  const elevatorVal = l.elevator === true ? 'Oui' : l.elevator === false ? 'Non' : 'n.c.';
   const [fav, setFav] = React.useState(!!(window.PepiteFav && window.PepiteFav.has(l.id)));
   const photos = l.photoUrls || [];
   const [lb, setLb] = React.useState(-1);
@@ -102,8 +112,13 @@ function DetailView({ listing, onBack }) {
             <span style={{ color: 'var(--text-faint)' }}>· détectée il y a {fmtAgo(l.freshMin)}</span>
           </div>
         </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginRight: 2 }}>
+          <IconButton size="sm" variant="solid" label="Offre précédente" disabled={!prev} onClick={() => go(prev)}><Icon name="chevron-left" size={15} /></IconButton>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-faint)', minWidth: 46, textAlign: 'center' }}>{idx + 1} / {all.length}</span>
+          <IconButton size="sm" variant="solid" label="Offre suivante" disabled={!next} onClick={() => go(next)}><Icon name="chevron-right" size={15} /></IconButton>
+        </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Button variant="secondary" size="md" leftIcon={<Icon name="eye" size={15} />}
+          <Button variant="secondary" size="md" leftIcon={<Icon name="eye" size={15} />} disabled={!l.url}
             onClick={() => { if (l.url) window.open(l.url, '_blank', 'noopener'); }}>Voir l'annonce</Button>
           <Button variant={fav ? 'secondary' : 'gold'} size="md" leftIcon={<Icon name="star" size={15} />}
             onClick={() => setFav(window.PepiteFav.toggle(l.id))}>{fav ? 'Suivi ✓' : 'Suivre'}</Button>
@@ -130,10 +145,12 @@ function DetailView({ listing, onBack }) {
             </div>
           </Panel>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(104px,1fr))', gap: 10 }}>
             <Fact icon="ruler" label="Surface" value={`${l.surface} m²`} />
-            <Fact icon="building" label="Pièces" value={`${l.rooms}`} />
-            <Fact icon="layers" label="Étage" value={`${l.floor}/${l.floors}`} />
+            <Fact icon="grid" label="Pièces" value={`${l.rooms}`} />
+            <Fact icon="layers" label="Étage / total" value={floorVal} />
+            <Fact icon="maximize" label="Balcon" value={l.balcon ? 'Oui' : '—'} />
+            <Fact icon="building" label="Ascenseur" value={elevatorVal} />
             <Fact icon="leaf" label="DPE" value={l.dpe} />
           </div>
 

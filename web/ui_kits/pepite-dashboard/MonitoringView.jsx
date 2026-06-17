@@ -16,6 +16,11 @@ function MiniBars({ data, color = 'var(--brand-500)', height = 34 }) {
 }
 
 const THROUGHPUT = [38, 42, 31, 55, 61, 48, 72, 80, 66, 90, 84, 102, 95, 78, 88, 110, 124, 98, 86, 70, 64, 58, 49, 53];
+const THROUGHPUT_7J = [58, 71, 64, 92, 88, 76, 104];
+const TF_LABELS = {
+  '24h': ['00:00', '06:00', '12:00', '18:00', 'now'],
+  '7j': ['J-6', 'J-5', 'J-4', 'J-3', 'J-2', 'J-1', 'auj.'],
+};
 
 function SourceRow({ s }) {
   const { StatusDot, Badge } = DS;
@@ -44,6 +49,23 @@ function SourceRow({ s }) {
 function MonitoringView() {
   const { Panel, StatCard, LogRow, StatusDot, Badge, IconButton, Button, Switch, Tabs } = DS;
   const [paused, setPaused] = React.useState(false);
+  const [reloading, setReloading] = React.useState(false);
+  const [tf, setTf] = React.useState('24h');
+  const series = tf === '7j' ? THROUGHPUT_7J : THROUGHPUT;
+  const peak = series.indexOf(Math.max(...series));
+
+  // export client-side des logs (RGPD : données techniques, pas de PII vendeur)
+  const exportLogs = () => {
+    const lines = LOGS.map((g) => `${g.time || ''}  ${String(g.level || 'info').toUpperCase().padEnd(5)} ${g.source || ''}  ${g.message || ''}`.trim());
+    const blob = new Blob([lines.join('\n') + '\n'], { type: 'text/plain;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `pepite-logs-${new Date().toISOString().slice(0, 10)}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
 
   return (
     <div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -60,7 +82,7 @@ function MonitoringView() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {/* sources table */}
           <Panel title="Sources de scraping" icon={<Icon name="layers" size={16} />} noPadding
-            actions={<Button variant="secondary" size="sm" leftIcon={<Icon name="refresh" size={14} />}>Relancer</Button>}>
+            actions={<Button variant="secondary" size="sm" loading={reloading} onClick={() => { setReloading(true); window.location.reload(); }} leftIcon={<Icon name="refresh" size={14} />}>Relancer</Button>}>
             <div style={{ display: 'grid', gridTemplateColumns: '150px 80px 70px 90px 80px 1fr', gap: 12, padding: '9px 14px', borderBottom: '1px solid var(--border-default)' }}>
               {['Source', 'Scannées', 'Pépites', 'Bloquées', 'Latence', 'Taux · proxy'].map((h) => (
                 <span key={h} className="eyebrow" style={{ fontSize: 10 }}>{h}</span>
@@ -70,20 +92,20 @@ function MonitoringView() {
           </Panel>
 
           {/* throughput */}
-          <Panel title="Débit de scraping" subtitle="Requêtes / minute · 24 dernières heures" icon={<Icon name="trending-up" size={16} />}
-            actions={<Tabs size="sm" tabs={[{ id: '24h', label: '24h' }, { id: '7j', label: '7j' }]} />}>
+          <Panel title="Débit de scraping" subtitle={tf === '7j' ? 'Requêtes / minute · 7 derniers jours' : 'Requêtes / minute · 24 dernières heures'} icon={<Icon name="trending-up" size={16} />}
+            actions={<Tabs size="sm" value={tf} onChange={setTf} tabs={[{ id: '24h', label: '24h' }, { id: '7j', label: '7j' }]} />}>
             <div style={{ height: 120, display: 'flex', alignItems: 'flex-end', gap: 3 }}>
-              {THROUGHPUT.map((v, i) => {
-                const max = Math.max(...THROUGHPUT);
+              {series.map((v, i) => {
+                const max = Math.max(...series);
                 return (
                   <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', height: '100%' }}>
-                    <div style={{ height: `${(v / max) * 100}%`, background: i === THROUGHPUT.length - 7 ? 'var(--gold-500)' : 'var(--brand-500)', opacity: 0.45 + (v / max) * 0.55, borderRadius: '3px 3px 0 0' }} title={`${v} req/min`} />
+                    <div style={{ height: `${(v / max) * 100}%`, background: i === peak ? 'var(--gold-500)' : 'var(--brand-500)', opacity: 0.45 + (v / max) * 0.55, borderRadius: '3px 3px 0 0' }} title={`${v} req/min`} />
                   </div>
                 );
               })}
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 10, color: 'var(--text-faint)', fontFamily: 'var(--font-mono)' }}>
-              <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>now</span>
+              {TF_LABELS[tf].map((lab, i) => <span key={i}>{lab}</span>)}
             </div>
           </Panel>
         </div>
@@ -125,7 +147,7 @@ function MonitoringView() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <StatusDot status={paused ? 'idle' : 'running'} label={paused ? 'En pause' : 'Live'} />
             <IconButton size="sm" variant="solid" label={paused ? 'Reprendre' : 'Pause'} onClick={() => setPaused((p) => !p)}><Icon name={paused ? 'play' : 'pause'} size={14} /></IconButton>
-            <IconButton size="sm" variant="solid" label="Exporter"><Icon name="download" size={14} /></IconButton>
+            <IconButton size="sm" variant="solid" label="Exporter" onClick={exportLogs}><Icon name="download" size={14} /></IconButton>
           </div>
         }>
         <div style={{ background: 'var(--bg-sunken)', maxHeight: 240, overflow: 'auto', padding: '8px 4px' }}>

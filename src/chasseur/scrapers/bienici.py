@@ -34,6 +34,17 @@ def _parse_date(value: object) -> datetime | None:
     return parsed if parsed.year >= 2005 else None  # 1970 epoch = date manquante chez BienIci
 
 
+def _structured_balcony(ad: dict[str, object]) -> bool | None:
+    """Balcon depuis les champs structurés BienIci ; None si absent (le filtre tranchera)."""
+    for key in ("balcony", "hasBalcony", "balconyQuantity", "nbBalcony", "balconyCount"):
+        value = ad.get(key)
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, (int, float)):
+            return value > 0
+    return None
+
+
 class BienIciScraper(Scraper):
     name = "bienici"
     requires_antibot = True
@@ -114,6 +125,8 @@ class BienIciScraper(Scraper):
             bedrooms=ad.get("bedroomsQuantity") if isinstance(ad.get("bedroomsQuantity"), int) else None,
             property_type=ptype,
             floor=ad.get("floor") if isinstance(ad.get("floor"), int) else None,
+            floor_count=ad.get("floorQuantity") if isinstance(ad.get("floorQuantity"), int) else None,
+            has_balcony=_structured_balcony(ad),
             dpe=str(ad["energyClassification"]) if ad.get("energyClassification") else None,
             ges=str(ad["greenhouseGazClassification"]) if ad.get("greenhouseGazClassification") else None,
             postal_code=str(ad["postalCode"]) if ad.get("postalCode") else None,

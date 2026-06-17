@@ -57,7 +57,9 @@ class Listing(BaseModel):
     bedrooms: int | None = None
     property_type: PropertyType = PropertyType.apartment
     floor: int | None = None
+    floor_count: int | None = None  # nb total d'étages du bâtiment (pour "Xe sur Y")
     has_elevator: bool | None = None
+    has_balcony: bool | None = None  # None = inconnu (le filtre tranchera via le texte)
 
     dpe: str | None = None
     ges: str | None = None
