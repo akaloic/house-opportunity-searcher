@@ -13,6 +13,19 @@ de commandement**.
 
 ---
 
+## 🌐 Démo en ligne
+
+Dashboard de commandement déployé sur **GitHub Pages** (données **démo**, jamais de
+données scrapées réelles — RGPD / CGU) :
+
+**→ https://akaloic.github.io/house-opportunity-searcher/**
+
+Le déploiement est automatique : à chaque push sur `main`, un workflow GitHub Actions
+régénère les données démo (fixtures, hors-ligne) et publie le dashboard. Le scraping
+live reste **strictement local** (jamais sur une infra publique).
+
+---
+
 ## ⚡ Démarrage rapide (mode démo, 100 % hors-ligne)
 
 Aucune dépendance lourde, aucun Docker, aucune clé : la démo tourne sur des fixtures réalistes.
