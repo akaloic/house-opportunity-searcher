@@ -3,6 +3,16 @@ import {
   Euro, Route, Zap, History, Leaf, Layers, Train, MapPin, TrendingDown, TrendingUp,
   Star, Gauge, Ruler, Maximize2, Clock, Building2, HelpCircle, ArrowUpRight,
 } from 'lucide-react'
+import { useCountUp } from '../lib/useCountUp'
+
+/* ---------------- CountUp (compteur animé formaté fr-FR) ---------------- */
+export function CountUp({
+  end, durationMs = 1200, decimals = 0, prefix = '', suffix = '',
+}: { end: number; durationMs?: number; decimals?: number; prefix?: string; suffix?: string }) {
+  const v = useCountUp(end, durationMs)
+  const txt = v.toLocaleString('fr-FR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+  return <>{prefix}{txt}{suffix}</>
+}
 
 // Registry name(string)→composant, pour les icônes pilotées par les données (CRITERIA).
 const ICONS: Record<string, typeof Euro> = {
@@ -150,7 +160,7 @@ export function Switch({ checked, onChange }: { checked: boolean; onChange: (v: 
 /* ---------------- StatCard ---------------- */
 export function StatCard({
   label, value, unit, icon, accent, foot,
-}: { label: string; value: string; unit?: string; icon?: ReactNode; accent?: string; foot?: ReactNode }) {
+}: { label: string; value: ReactNode; unit?: string; icon?: ReactNode; accent?: string; foot?: ReactNode }) {
   return (
     <Card className="stat">
       <div className="stat-label">

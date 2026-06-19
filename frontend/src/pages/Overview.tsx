@@ -1,10 +1,10 @@
 import { lazy, Suspense } from 'react'
-import { Sparkles, ArrowRight, Building2, MapPin, Train, Zap, Euro, Gauge, Layers, Map as MapIcon, BarChart3, Radar as RadarIcon } from 'lucide-react'
+import { Sparkles, ArrowRight, Building2, MapPin, Train, Zap, Euro, Gauge, Layers, Map as MapIcon, BarChart3, Radar as RadarIcon, TrendingUp } from 'lucide-react'
 import type { PepiteData, Listing, ViewId } from '../types'
 import { fmtEur, decotePct, economyEur, scoreLabel } from '../lib/format'
 import { useCountUp } from '../lib/useCountUp'
-import { Card, Panel, StatCard, Badge, Delta, Button } from '../components/ui'
-import { ScoreGauge, ScoreRadar, ScoreBars } from '../components/charts'
+import { Card, Panel, StatCard, Badge, Delta, Button, CountUp } from '../components/ui'
+import { ScoreGauge, ScoreRadar, ScoreBars, DrawCurve } from '../components/charts'
 import { OppCard, FeedRow } from '../components/listing'
 
 const MapPanel = lazy(() => import('../components/MapPanel'))
@@ -39,6 +39,14 @@ export default function Overview({
   const topDec = top ? decotePct(top) : 0
   const topEco = top ? economyEur(top) : 0
 
+  // Économie cumulée, par ordre de détection (du plus ancien au plus récent).
+  // Le point final = totalEconomy → la courbe « rejoint » le grand chiffre du hero.
+  const cumEconomy = (() => {
+    const byDet = [...ranked].sort((a, b) => b.freshMin - a.freshMin)
+    let acc = 0
+    return byDet.map((l) => (acc += economyEur(l)))
+  })()
+
   return (
     <div className="page">
       {/* ---------------- HERO ---------------- */}
@@ -70,10 +78,10 @@ export default function Overview({
           </div>
 
           <div className="hero-chips">
-            <div><div className="hero-chip-v">{pepites.length}</div><div className="hero-chip-l">Pépites ≥ 80</div></div>
-            <div><div className="hero-chip-v">−{medDecote.toFixed(0)} %</div><div className="hero-chip-l">Décote médiane</div></div>
-            <div><div className="hero-chip-v">{ranked.length}</div><div className="hero-chip-l">Biens scannés</div></div>
-            <div><div className="hero-chip-v">{top?.score ?? 0}</div><div className="hero-chip-l">Meilleur score</div></div>
+            <div><div className="hero-chip-v"><CountUp end={pepites.length} /></div><div className="hero-chip-l">Pépites ≥ 80</div></div>
+            <div><div className="hero-chip-v"><CountUp end={medDecote} prefix="−" suffix=" %" /></div><div className="hero-chip-l">Décote médiane</div></div>
+            <div><div className="hero-chip-v"><CountUp end={ranked.length} /></div><div className="hero-chip-l">Biens scannés</div></div>
+            <div><div className="hero-chip-v"><CountUp end={top?.score ?? 0} /></div><div className="hero-chip-l">Meilleur score</div></div>
           </div>
         </div>
 
@@ -97,7 +105,7 @@ export default function Overview({
               </div>
               <div className="feat-row">
                 <div>
-                  <div className="feat-price">{fmtEur(top.price)} €</div>
+                  <div className="feat-price"><CountUp end={top.price} suffix=" €" /></div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
                     <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-faint)' }}>{fmtEur(top.ppm2)} €/m²</span>
                     {topDec > 0 && <Delta value={topDec} invert />}
@@ -120,12 +128,25 @@ export default function Overview({
         )}
       </section>
 
+      {/* ---------------- Courbe économie cumulée ---------------- */}
+      {cumEconomy.length >= 2 && (
+        <div className="anim d3" style={{ marginBottom: 22 }}>
+          <Panel
+            title="Économie cumulée détectée" subtitle="Somme des décotes vs marché DVF, par ordre de détection"
+            icon={<TrendingUp size={16} />}
+            actions={<span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'var(--text-xl)', color: 'var(--brand-400)' }}>≈ <CountUp end={totalEconomy} suffix=" €" /></span>}
+          >
+            <DrawCurve data={cumEconomy} height={150} />
+          </Panel>
+        </div>
+      )}
+
       {/* ---------------- KPI ---------------- */}
       <div className="kpi-grid anim d4">
-        <StatCard label="Pépites détectées" value={String(pepites.length)} unit={`/ ${ranked.length}`} icon={<Zap size={15} />} accent="var(--gold-400)" foot={<span style={{ color: 'var(--text-faint)' }}>score ≥ 80 / 100</span>} />
-        <StatCard label="Décote médiane" value={`−${medDecote.toFixed(0)}`} unit="%" icon={<Euro size={15} />} foot={<span style={{ color: 'var(--success-500)' }}>vs médiane DVF quartier</span>} />
-        <StatCard label="Médiane marché /m²" value={fmtEur(medMarket)} unit="€" icon={<Layers size={15} />} foot={<span style={{ color: 'var(--text-faint)' }}>micro-quartier, &lt; 24 mois</span>} />
-        <StatCard label="Meilleur score" value={String(top?.score ?? 0)} unit="/100" icon={<Gauge size={15} />} foot={top ? <span style={{ color: 'var(--text-faint)' }}>{top.quartier}</span> : null} />
+        <StatCard label="Pépites détectées" value={<CountUp end={pepites.length} />} unit={`/ ${ranked.length}`} icon={<Zap size={15} />} accent="var(--gold-400)" foot={<span style={{ color: 'var(--text-faint)' }}>score ≥ 80 / 100</span>} />
+        <StatCard label="Décote médiane" value={<CountUp end={medDecote} prefix="−" />} unit="%" icon={<Euro size={15} />} foot={<span style={{ color: 'var(--success-500)' }}>vs médiane DVF quartier</span>} />
+        <StatCard label="Médiane marché /m²" value={<CountUp end={medMarket} />} unit="€" icon={<Layers size={15} />} foot={<span style={{ color: 'var(--text-faint)' }}>micro-quartier, &lt; 24 mois</span>} />
+        <StatCard label="Meilleur score" value={<CountUp end={top?.score ?? 0} />} unit="/100" icon={<Gauge size={15} />} foot={top ? <span style={{ color: 'var(--text-faint)' }}>{top.quartier}</span> : null} />
       </div>
 
       {/* ---------------- Opportunités du moment ---------------- */}

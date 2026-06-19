@@ -107,7 +107,7 @@ export default function App() {
 
         {view === 'overview' && <Overview data={data} onOpen={openDetail} onNavigate={setView} favs={favs} toggleFav={toggle} />}
         {view === 'opportunities' && <Opportunities data={data} query={query} onOpen={openDetail} favs={favs} toggleFav={toggle} />}
-        {view === 'detail' && selected && <Detail data={data} listing={selected} onBack={() => setView('opportunities')} onOpen={openDetail} fav={favs.has(selected.id)} toggleFav={toggle} />}
+        {view === 'detail' && selected && <Detail key={selected.id} data={data} listing={selected} onBack={() => setView('opportunities')} onOpen={openDetail} fav={favs.has(selected.id)} toggleFav={toggle} />}
         {view === 'scoring' && <ScoringEngine data={data} />}
         {view === 'monitoring' && <Monitoring data={data} />}
       </div>

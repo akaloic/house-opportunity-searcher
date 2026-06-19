@@ -1,25 +1,42 @@
+import { useEffect, useRef, useState } from 'react'
 import {
   ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar,
   AreaChart, Area, Tooltip,
 } from 'recharts'
 import { scoreColor } from '../lib/format'
 
+const prefersReduced = () =>
+  typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
+// Déclenche `true` juste après le montage (2× rAF → la frame "état 0" est peinte
+// avant la transition CSS, garantissant l'animation d'entrée).
+function useMountFlag(enabled = true): boolean {
+  const [on, setOn] = useState(!enabled || prefersReduced())
+  useEffect(() => {
+    if (!enabled || prefersReduced()) return
+    const id = requestAnimationFrame(() => requestAnimationFrame(() => setOn(true)))
+    return () => cancelAnimationFrame(id)
+  }, [enabled])
+  return on
+}
+
 /* ---------------- ScoreGauge — jauge circulaire SVG ---------------- */
 export function ScoreGauge({
-  value, size = 64, thickness = 6, showValue = true, label,
-}: { value: number; size?: number; thickness?: number; showValue?: boolean; label?: string }) {
+  value, size = 64, thickness = 6, showValue = true, label, animate = true,
+}: { value: number; size?: number; thickness?: number; showValue?: boolean; label?: string; animate?: boolean }) {
   const r = (size - thickness) / 2
   const c = 2 * Math.PI * r
   const pct = Math.max(0, Math.min(100, value)) / 100
   const color = scoreColor(value)
+  const shown = useMountFlag(animate)
   return (
     <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
       <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--surface-4)" strokeWidth={thickness} />
         <circle
           cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={thickness}
-          strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - pct)}
-          style={{ transition: 'stroke-dashoffset 0.9s var(--ease-out)', filter: `drop-shadow(0 0 5px ${color}66)` }}
+          strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - (shown ? pct : 0))}
+          style={{ transition: 'stroke-dashoffset 1.05s var(--ease-out)', filter: `drop-shadow(0 0 5px ${color}66)` }}
         />
       </svg>
       <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
@@ -45,7 +62,7 @@ export function ScoreRadar({
         <RadarChart data={data} outerRadius="72%">
           <PolarGrid stroke="var(--border-subtle)" />
           <PolarAngleAxis dataKey="axis" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
-          <Radar dataKey="value" stroke={color} fill={color} fillOpacity={0.28} strokeWidth={2} />
+          <Radar dataKey="value" stroke={color} fill={color} fillOpacity={0.28} strokeWidth={2} isAnimationActive animationBegin={150} animationDuration={1100} animationEasing="ease-out" />
         </RadarChart>
       </ResponsiveContainer>
     </div>
@@ -116,16 +133,81 @@ export function ScoreBars({ values }: { values: number[] }) {
     else buckets[0]++
   }
   const max = Math.max(1, ...buckets)
+  const shown = useMountFlag()
   return (
     <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, height: 130, paddingTop: 8 }}>
       {buckets.map((b, i) => (
         <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, height: '100%' }}>
           <div style={{ flex: 1, width: '100%', display: 'flex', alignItems: 'flex-end' }}>
-            <div style={{ width: '100%', height: `${(b / max) * 100}%`, minHeight: b > 0 ? 6 : 0, background: colors[i], opacity: 0.85, borderRadius: '5px 5px 0 0', transition: 'height 0.7s var(--ease-out)' }} title={`${b} bien(s)`} />
+            <div style={{ width: '100%', height: shown ? `${(b / max) * 100}%` : 0, minHeight: shown && b > 0 ? 6 : 0, background: colors[i], opacity: 0.85, borderRadius: '5px 5px 0 0', transition: `height 0.8s var(--ease-out) ${i * 70}ms`, boxShadow: `0 0 12px ${colors[i]}33` }} title={`${b} bien(s)`} />
           </div>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-faint)' }}>{labels[i]}</span>
         </div>
       ))}
     </div>
+  )
+}
+
+/* ---------------- DrawCurve — courbe d'aire qui se trace à l'entrée ---------------- */
+function smoothPath(pts: { x: number; y: number }[]): string {
+  if (pts.length < 2) return ''
+  let d = `M ${pts[0].x} ${pts[0].y}`
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i]
+    const p1 = pts[i]
+    const p2 = pts[i + 1]
+    const p3 = pts[i + 2] || p2
+    const cp1x = p1.x + (p2.x - p0.x) / 6
+    const cp1y = p1.y + (p2.y - p0.y) / 6
+    const cp2x = p2.x - (p3.x - p1.x) / 6
+    const cp2y = p2.y - (p3.y - p1.y) / 6
+    d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`
+  }
+  return d
+}
+
+export function DrawCurve({
+  data, color = 'var(--brand-500)', height = 150, gradientId = 'dc', durationMs = 1500,
+}: { data: number[]; color?: string; height?: number; gradientId?: string; durationMs?: number }) {
+  const W = 600
+  const H = height
+  const pad = 14
+  const shown = useMountFlag()
+  const lineRef = useRef<SVGPathElement>(null)
+  const [len, setLen] = useState(1)
+  useEffect(() => {
+    if (lineRef.current) {
+      try { setLen(lineRef.current.getTotalLength() || 1) } catch { setLen(1) }
+    }
+  }, [data.length, height])
+
+  if (data.length < 2) return <div style={{ height }} />
+  const min = Math.min(...data)
+  const max = Math.max(...data)
+  const span = max - min || 1
+  const pts = data.map((v, i) => ({
+    x: pad + (i / (data.length - 1)) * (W - 2 * pad),
+    y: H - pad - ((v - min) / span) * (H - 2 * pad),
+  }))
+  const line = smoothPath(pts)
+  const area = `${line} L ${pts[pts.length - 1].x} ${H} L ${pts[0].x} ${H} Z`
+  const last = pts[pts.length - 1]
+
+  return (
+    <svg width="100%" height={height} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ display: 'block', overflow: 'visible' }}>
+      <defs>
+        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity={0.42} />
+          <stop offset="100%" stopColor={color} stopOpacity={0} />
+        </linearGradient>
+      </defs>
+      <path d={area} fill={`url(#${gradientId})`} style={{ opacity: shown ? 1 : 0, transition: `opacity 1s ease ${durationMs * 0.35}ms` }} />
+      <path
+        ref={lineRef} d={line} fill="none" stroke={color} strokeWidth={2.6} strokeLinecap="round"
+        style={{ strokeDasharray: len, strokeDashoffset: shown ? 0 : len, transition: `stroke-dashoffset ${durationMs}ms var(--ease-out)`, filter: `drop-shadow(0 1px 6px ${color}55)` }}
+      />
+      <circle cx={last.x} cy={last.y} r={4.5} fill={color} stroke="var(--bg-base)" strokeWidth={2}
+        style={{ opacity: shown ? 1 : 0, transition: `opacity 0.4s ease ${durationMs}ms` }} />
+    </svg>
   )
 }

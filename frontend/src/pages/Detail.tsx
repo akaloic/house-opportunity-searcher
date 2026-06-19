@@ -5,7 +5,7 @@ import {
 } from 'lucide-react'
 import type { PepiteData, Listing } from '../types'
 import { fmtEur, fmtAgo, decotePct, scoreColor, scoreLabel } from '../lib/format'
-import { Card, Panel, Badge, Delta, Button, IconButton, Icon } from '../components/ui'
+import { Card, Panel, Badge, Delta, Button, IconButton, Icon, CountUp } from '../components/ui'
 import { ScoreGauge, ScoreRadar } from '../components/charts'
 
 function Fact({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
@@ -168,7 +168,7 @@ export default function Detail({
               <ScoreGauge value={l.score} size={92} thickness={7} label={scoreLabel(l.score)} />
               <div style={{ flex: 1 }}>
                 <div className="eyebrow" style={{ marginBottom: 6 }}>Prix de vente</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-4xl)', fontWeight: 800, color: 'var(--text-strong)', lineHeight: 1, letterSpacing: '-0.02em' }}>{fmtEur(l.price)} €</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-4xl)', fontWeight: 800, color: 'var(--text-strong)', lineHeight: 1, letterSpacing: '-0.02em' }}><CountUp end={l.price} durationMs={900} suffix=" €" /></div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)', color: 'var(--text-default)' }}>{fmtEur(l.ppm2)} €/m²</span>
                   {dec !== 0 && <Delta value={dec} invert />}
