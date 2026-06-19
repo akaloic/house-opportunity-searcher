@@ -33,7 +33,9 @@ def test_pepite_scores_high_and_caps_offer(pepite, as_of: date) -> None:
 
 
 def test_missing_subscores_are_neutral_and_safe(as_of: date) -> None:
-    listing = Listing(source=Source.sample, source_id="bare", title="x", price=200000, surface_m2=40)
+    listing = Listing(
+        source=Source.sample, source_id="bare", title="x", price=200000, surface_m2=40
+    )
     ctx = EnrichedContext()  # ni marché, ni transport (unchecked), ni charges
     score = score_listing(listing, ctx, ScoringConfig(), as_of=as_of)
 

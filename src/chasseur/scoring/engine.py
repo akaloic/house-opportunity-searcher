@@ -14,7 +14,9 @@ from chasseur.scoring import subscores as ss
 from chasseur.scoring.recommend import build_recommendation, suggest_offer, urgency_level
 
 
-def _combine(values: dict[str, float | None], weights: dict[str, float], cfg: ScoringConfig) -> float:
+def _combine(
+    values: dict[str, float | None], weights: dict[str, float], cfg: ScoringConfig
+) -> float:
     """Somme pondérée, en gérant les sous-scores absents selon la politique config."""
     if cfg.missing_subscore_policy == "exclude":
         present = {k: v for k, v in values.items() if v is not None}

@@ -225,7 +225,7 @@ class StealthSession:
     # --- résolution de challenge (FlareSolverr) --------------------------- #
     @property
     def can_solve(self) -> bool:
-        """FlareSolverr est-il configuré ? (sinon les cibles DataDome/Cloudflare sont hors d'atteinte)"""
+        """FlareSolverr est-il configuré ? (sinon DataDome/Cloudflare hors d'atteinte)."""
         return bool(self._cfg.flaresolverr_url)
 
     def solve(self, url: str) -> FetchResult:

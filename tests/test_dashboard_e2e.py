@@ -90,7 +90,8 @@ def test_dashboard_end_to_end() -> None:
             # 3. photo du flux affichée (data-URI déterministe sur la fixture pépite)
             page.wait_for_timeout(500)
             photo_ok = page.eval_on_selector_all(
-                "img", "els => els.filter(i => i.src.startsWith('data:') && i.naturalWidth > 0).length"
+                "img",
+                "els => els.filter(i => i.src.startsWith('data:') && i.naturalWidth > 0).length",
             )
             assert photo_ok > 0, "la vignette photo (data-URI) ne s'est pas affichée"
 

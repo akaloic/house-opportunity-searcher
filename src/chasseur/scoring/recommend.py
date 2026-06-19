@@ -71,7 +71,9 @@ def build_recommendation(
     opener = {
         UrgencyLevel.pepite: "Appelle dans les 5 min, bloque une visite aujourd'hui.",
         UrgencyLevel.hot: "Appelle aujourd'hui, cale une visite sous 48h.",
-        UrgencyLevel.interesting: "À surveiller — recontacte si le prix bouge ou si une visite se libère.",
+        UrgencyLevel.interesting: (
+            "À surveiller — recontacte si le prix bouge ou si une visite se libère."
+        ),
         UrgencyLevel.watch: "Veille passive : pas prioritaire en l'état.",
     }[level]
 
@@ -98,7 +100,11 @@ def build_recommendation(
 
     parts = [opener, offer + "."]
     if ctx.renovation is not None and ctx.renovation.total_cost > 0:
-        parts.append(f"Budget travaux estimé ~{_eur(ctx.renovation.total_cost)} ({ctx.renovation.notes}).")
+        parts.append(
+            f"Budget travaux estimé ~{_eur(ctx.renovation.total_cost)} ({ctx.renovation.notes})."
+        )
     if dpe == "G":
-        parts.append("Attention : non louable en l'état, monter le dossier sur la revente ou la rénovation.")
+        parts.append(
+            "Attention : non louable en l'état, monter le dossier sur la revente ou la rénovation."
+        )
     return " ".join(parts)

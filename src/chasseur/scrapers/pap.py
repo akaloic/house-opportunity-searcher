@@ -28,9 +28,9 @@ from chasseur.antibot.session import AntibotError, StealthSession
 from chasseur.models import Listing, PropertyType, Source
 from chasseur.scrapers.base import (
     AntibotNotConfigured,
+    ScrapeQuery,
     Scraper,
     ScraperError,
-    ScrapeQuery,
 )
 
 GEO_URL = "https://www.pap.fr/json/ac-geo"
@@ -60,12 +60,10 @@ def _digits(text: str) -> float | None:
         if len(parts) > 2:
             # "2.990.000" ou plus : tous les points sauf le dernier sont milliers -> enlever tous
             cleaned = "".join(parts)
-        elif len(parts) == 2:
-            # "310.000" ou "15.50" : ambiguïté.
-            # Si dernier groupe a exactement 3 chiffres, c'est probablement des milliers.
-            if len(parts[-1]) == 3 and parts[-1].isdigit():
-                cleaned = parts[0] + parts[1]  # enlever le point
-            # Sinon c'est une décimale anglaise (leave as-is).
+        # "310.000" (milliers) vs "15.50" (décimale anglaise) : si le dernier groupe a
+        # exactement 3 chiffres, on traite comme un séparateur de milliers ; sinon on laisse.
+        elif len(parts) == 2 and len(parts[-1]) == 3 and parts[-1].isdigit():
+            cleaned = parts[0] + parts[1]
     try:
         val = float(cleaned)
         return val if val > 0 else None

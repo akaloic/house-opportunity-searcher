@@ -33,7 +33,10 @@ def _print_summary(results: list[ScoredListing], summary: RunSummary) -> None:
     print("🏆 Top leads :")
     for sl in results[:8]:
         s = sl.score
-        print(f"  {s.total:5.1f}/100  [{s.level.value:11}]  {sl.listing.title}  ({sl.listing.city})")
+        print(
+            f"  {s.total:5.1f}/100  [{s.level.value:11}]  "
+            f"{sl.listing.title}  ({sl.listing.city})"
+        )
     if summary.outbox:
         print("\n🔔 Alertes (dry-run) :\n")
         for message in summary.outbox:
@@ -41,7 +44,9 @@ def _print_summary(results: list[ScoredListing], summary: RunSummary) -> None:
             print("-" * 64)
 
 
-def _run(args: argparse.Namespace, settings: Settings, *, notify: bool, now: datetime | None = None):
+def _run(
+    args: argparse.Namespace, settings: Settings, *, notify: bool, now: datetime | None = None
+):
     """Lance le pipeline en mode live (BienIci + DVF réels) ou démo/sample."""
     if getattr(args, "live", False):
         settings.market_source = "dvf"
@@ -79,7 +84,7 @@ def cmd_export_web(args: argparse.Namespace, settings: Settings) -> int:
     if getattr(args, "json", None):
         out_json = write_data_json(args.json, results, summary, settings, now)
         print(f"   ➜ JSON (front Vite) : {out_json}")
-    print(f"   Lance le dashboard :  chasseur serve-web   (puis ouvre l'URL affichée)")
+    print("   Lance le dashboard :  chasseur serve-web   (puis ouvre l'URL affichée)")
     return 0
 
 
@@ -145,8 +150,12 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
 
     p_run = sub.add_parser("run", help="Lance le pipeline et affiche les leads")
-    p_run.add_argument("--demo", action="store_true", help="Fixtures hors-ligne (aucune dépendance)")
-    p_run.add_argument("--live", action="store_true", help="Scraping RÉEL BienIci + décote DVF réelle")
+    p_run.add_argument(
+        "--demo", action="store_true", help="Fixtures hors-ligne (aucune dépendance)"
+    )
+    p_run.add_argument(
+        "--live", action="store_true", help="Scraping RÉEL BienIci + décote DVF réelle"
+    )
     p_run.add_argument("--limit", type=int, default=60, help="Nb max d'annonces (mode live)")
     p_run.add_argument("--no-notify", action="store_true", help="Ne pas déclencher les alertes")
     p_run.set_defaults(func=cmd_run)
@@ -159,8 +168,13 @@ def build_parser() -> argparse.ArgumentParser:
     p_export.add_argument("--demo", action="store_true", help="Fixtures hors-ligne")
     p_export.add_argument("--live", action="store_true", help="Scraping RÉEL BienIci + décote DVF")
     p_export.add_argument("--limit", type=int, default=60, help="Nb max d'annonces (mode live)")
-    p_export.add_argument("-o", "--output", default=str(DEFAULT_WEB_DATA), help="Fichier data.live.js")
-    p_export.add_argument("--json", default=None, help="Écrit aussi un JSON brut (front Vite/React), ex: frontend/public/data.live.json")
+    p_export.add_argument(
+        "-o", "--output", default=str(DEFAULT_WEB_DATA), help="Fichier data.live.js"
+    )
+    p_export.add_argument(
+        "--json", default=None,
+        help="JSON brut pour le front Vite (ex: frontend/public/data.live.json)",
+    )
     p_export.set_defaults(func=cmd_export_web)
 
     p_serve = sub.add_parser("serve-web", help="Sert le dashboard en local")

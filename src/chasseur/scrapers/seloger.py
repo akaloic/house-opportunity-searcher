@@ -19,7 +19,7 @@ from urllib.parse import urlencode
 
 from chasseur.antibot.session import AntibotError, StealthSession
 from chasseur.models import Listing, PropertyType, Source
-from chasseur.scrapers.base import AntibotNotConfigured, Scraper, ScrapeQuery
+from chasseur.scrapers.base import AntibotNotConfigured, ScrapeQuery, Scraper
 
 _NEXT_DATA_RE = re.compile(
     r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', re.DOTALL

@@ -8,6 +8,7 @@ Deux briques :
 
 from __future__ import annotations
 
+import contextlib
 import json
 from pathlib import Path
 from typing import Protocol
@@ -121,14 +122,16 @@ def build_transport_context(
     # Augmentation web (best-effort) : rafraîchir les calendriers d'ouverture.
     # NB : transformer les résultats web en FutureStation fiables est le point
     # d'intégration laissé à brancher (parsing dépendant du fournisseur) — cf README.
-    if search_provider is not None and not isinstance(search_provider, NullSearchProvider):
-        if listing.city:
-            try:
-                search_provider.search(
-                    f"future gare Grand Paris Express {listing.city} date ouverture mise en service"
-                )
-            except Exception:  # noqa: BLE001 — l'enrichissement web ne doit jamais casser le pipeline
-                pass
+    # best-effort : ne doit jamais casser le pipeline (cf. mode dégradé)
+    if (
+        search_provider is not None
+        and not isinstance(search_provider, NullSearchProvider)
+        and listing.city
+    ):
+        with contextlib.suppress(Exception):
+            search_provider.search(
+                f"future gare Grand Paris Express {listing.city} date ouverture mise en service"
+            )
 
     return TransportContext(
         current_station_m=current_station_m,

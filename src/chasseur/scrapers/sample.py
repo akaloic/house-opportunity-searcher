@@ -7,7 +7,7 @@ from collections.abc import Iterable
 from pathlib import Path
 
 from chasseur.models import Listing
-from chasseur.scrapers.base import Scraper, ScrapeQuery
+from chasseur.scrapers.base import ScrapeQuery, Scraper
 
 
 class SampleScraper(Scraper):

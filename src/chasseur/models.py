@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, Field, computed_field
 
 
-class Source(str, Enum):
+class Source(StrEnum):
     leboncoin = "leboncoin"
     seloger = "seloger"
     bienici = "bienici"
@@ -16,20 +16,20 @@ class Source(str, Enum):
     sample = "sample"
 
 
-class PropertyType(str, Enum):
+class PropertyType(StrEnum):
     apartment = "apartment"
     house = "house"
     other = "other"
 
 
-class UrgencyLevel(str, Enum):
+class UrgencyLevel(StrEnum):
     watch = "watch"
     interesting = "interesting"
     hot = "hot"
     pepite = "pepite"
 
 
-class Condition(str, Enum):
+class Condition(StrEnum):
     new = "new"
     good = "good"
     refresh = "refresh"
@@ -90,12 +90,16 @@ class Listing(BaseModel):
     @property
     def dedup_key(self) -> str:
         """Clé de dédup inter-portails (heuristique) : détecte la multi-diffusion."""
-        return f"{self.postal_code}|{self.property_type.value}|{round(self.surface_m2)}|{self.rooms}"
+        return (
+            f"{self.postal_code}|{self.property_type.value}|"
+            f"{round(self.surface_m2)}|{self.rooms}"
+        )
 
     def price_drops(self) -> int:
         """Nombre de baisses de prix observées dans l'historique."""
         ordered = sorted(self.price_history, key=lambda point: point.ts)
-        return sum(1 for prev, cur in zip(ordered, ordered[1:]) if cur.price < prev.price)
+        pairs = zip(ordered, ordered[1:], strict=False)
+        return sum(1 for prev, cur in pairs if cur.price < prev.price)
 
 
 class FutureStation(BaseModel):

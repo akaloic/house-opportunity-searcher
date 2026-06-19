@@ -18,7 +18,7 @@ from urllib.parse import quote
 
 from chasseur.antibot.session import StealthSession
 from chasseur.models import Listing, PropertyType, Source
-from chasseur.scrapers.base import Scraper, ScraperError, ScrapeQuery
+from chasseur.scrapers.base import ScrapeQuery, Scraper, ScraperError
 
 SUGGEST_URL = "https://res.bienici.com/suggest.json"
 SEARCH_URL = "https://www.bienici.com/realEstateAds.json"
@@ -49,7 +49,9 @@ class BienIciScraper(Scraper):
     name = "bienici"
     requires_antibot = True
 
-    def __init__(self, session: StealthSession, *, min_price: float = 50_000.0, page_size: int = 30) -> None:
+    def __init__(
+        self, session: StealthSession, *, min_price: float = 50_000.0, page_size: int = 30
+    ) -> None:
         self._session = session
         self._min_price = min_price
         self._page_size = page_size
@@ -122,13 +124,21 @@ class BienIciScraper(Scraper):
             price=float(price),
             surface_m2=float(surface),
             rooms=ad.get("roomsQuantity") if isinstance(ad.get("roomsQuantity"), int) else None,
-            bedrooms=ad.get("bedroomsQuantity") if isinstance(ad.get("bedroomsQuantity"), int) else None,
+            bedrooms=(
+                ad.get("bedroomsQuantity") if isinstance(ad.get("bedroomsQuantity"), int) else None
+            ),
             property_type=ptype,
             floor=ad.get("floor") if isinstance(ad.get("floor"), int) else None,
-            floor_count=ad.get("floorQuantity") if isinstance(ad.get("floorQuantity"), int) else None,
+            floor_count=(
+                ad.get("floorQuantity") if isinstance(ad.get("floorQuantity"), int) else None
+            ),
             has_balcony=_structured_balcony(ad),
             dpe=str(ad["energyClassification"]) if ad.get("energyClassification") else None,
-            ges=str(ad["greenhouseGazClassification"]) if ad.get("greenhouseGazClassification") else None,
+            ges=(
+                str(ad["greenhouseGazClassification"])
+                if ad.get("greenhouseGazClassification")
+                else None
+            ),
             postal_code=str(ad["postalCode"]) if ad.get("postalCode") else None,
             city=str(ad.get("city") or "") or None,
             lat=float(lat) if isinstance(lat, (int, float)) else None,

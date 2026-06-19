@@ -59,9 +59,11 @@ def test_lbc_parse_maps_core_fields() -> None:
 
 def test_lbc_degrades_cleanly_without_infra() -> None:
     scraper = LeBonCoinScraper(_session())
-    with mock.patch.object(scraper._session, "post", side_effect=AntibotError("403 DataDome")):
-        with pytest.raises(AntibotNotConfigured):
-            list(scraper.fetch_listings(ScrapeQuery(postal_codes=["92400"])))
+    with (
+        mock.patch.object(scraper._session, "post", side_effect=AntibotError("403 DataDome")),
+        pytest.raises(AntibotNotConfigured),
+    ):
+        list(scraper.fetch_listings(ScrapeQuery(postal_codes=["92400"])))
 
 
 # --- SeLoger ---------------------------------------------------------------- #
@@ -92,9 +94,11 @@ def test_seloger_extract_and_parse() -> None:
 
 def test_seloger_degrades_cleanly_without_infra() -> None:
     scraper = SeLogerScraper(_session())  # pas de FlareSolverr -> can_solve == False
-    with mock.patch.object(scraper._session, "get", side_effect=AntibotError("403")):
-        with pytest.raises(AntibotNotConfigured):
-            list(scraper.fetch_listings(ScrapeQuery(postal_codes=["92400"])))
+    with (
+        mock.patch.object(scraper._session, "get", side_effect=AntibotError("403")),
+        pytest.raises(AntibotNotConfigured),
+    ):
+        list(scraper.fetch_listings(ScrapeQuery(postal_codes=["92400"])))
 
 
 # --- session : solve / FlareSolverr ----------------------------------------- #
@@ -149,15 +153,15 @@ def test_pap_parse_html() -> None:
     """
     listings = PapScraper.parse_html(html)
     assert len(listings) == 1
-    l = listings[0]
-    assert l.source_id == "123"
-    assert l.price == 239800.0
-    assert l.surface_m2 == 30.5
-    assert l.rooms == 2
-    assert l.bedrooms == 1
-    assert l.city == "Courbevoie"
-    assert l.postal_code == "92400"
-    assert l.is_professional is False
+    lst = listings[0]
+    assert lst.source_id == "123"
+    assert lst.price == 239800.0
+    assert lst.surface_m2 == 30.5
+    assert lst.rooms == 2
+    assert lst.bedrooms == 1
+    assert lst.city == "Courbevoie"
+    assert lst.postal_code == "92400"
+    assert lst.is_professional is False
 
 
 def test_pap_degrades_cleanly_without_antibot() -> None:
@@ -165,7 +169,9 @@ def test_pap_degrades_cleanly_without_antibot() -> None:
 
     scraper = PapScraper(_session())
     # Mock géo resolution (succeeds), but _fetch_html fails
-    with mock.patch.object(scraper, "_resolve_geo_ids", return_value=[43294]):
-        with mock.patch.object(scraper, "_fetch_html", side_effect=AntibotNotConfigured("Cloudflare")):
-            with pytest.raises(AntibotNotConfigured):
-                list(scraper.fetch_listings(ScrapeQuery(postal_codes=["92400"])))
+    with (
+        mock.patch.object(scraper, "_resolve_geo_ids", return_value=[43294]),
+        mock.patch.object(scraper, "_fetch_html", side_effect=AntibotNotConfigured("Cloudflare")),
+        pytest.raises(AntibotNotConfigured),
+    ):
+        list(scraper.fetch_listings(ScrapeQuery(postal_codes=["92400"])))

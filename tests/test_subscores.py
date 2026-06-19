@@ -34,7 +34,9 @@ def test_futur_transport_horizon_weighting() -> None:
 
 
 def test_futur_transport_unchecked_is_none() -> None:
-    assert ss.futur_transport_subscore(TransportContext(checked=False), ScoringConfig(), 2026) is None
+    assert (
+        ss.futur_transport_subscore(TransportContext(checked=False), ScoringConfig(), 2026) is None
+    )
 
 
 def test_futur_transport_already_open_excluded() -> None:

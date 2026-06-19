@@ -95,7 +95,12 @@ class DVFGeoReference:
     _TYPE = {PropertyType.apartment: "Appartement", PropertyType.house: "Maison"}
 
     def __init__(
-        self, *, cache_dir: str | Path, year: str = "2024", radius_m: float = 700.0, min_points: int = 8
+        self,
+        *,
+        cache_dir: str | Path,
+        year: str = "2024",
+        radius_m: float = 700.0,
+        min_points: int = 8,
     ) -> None:
         self._cache_dir = Path(cache_dir)
         self._cache_dir.mkdir(parents=True, exist_ok=True)
@@ -138,7 +143,10 @@ class DVFGeoReference:
         text = self._csv_text(insee)
         if text:
             for record in csv.DictReader(text.splitlines()):
-                if record.get("type_local") != target_type or record.get("nature_mutation") != "Vente":
+                if (
+                    record.get("type_local") != target_type
+                    or record.get("nature_mutation") != "Vente"
+                ):
                     continue
                 try:
                     valeur = float(record["valeur_fonciere"])
@@ -146,7 +154,8 @@ class DVFGeoReference:
                     lots = int(record.get("nombre_lots") or 0)
                 except (TypeError, ValueError):
                     continue
-                if surface < 9 or valeur < 30_000 or lots > 3:  # anti-bruit (lots multiples, garages)
+                # anti-bruit : lots multiples, garages, surfaces aberrantes
+                if surface < 9 or valeur < 30_000 or lots > 3:
                     continue
                 ppm2 = valeur / surface
                 if not 1000 < ppm2 < 30_000:

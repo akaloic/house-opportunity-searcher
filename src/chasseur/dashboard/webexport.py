@@ -18,13 +18,20 @@ from chasseur.pipeline import RunSummary, ScoredListing, effective_floor, effect
 
 # Nos 7 critères réels (mêmes clés que Score.sub_scores). icônes/accents = design tokens.
 CRITERIA: list[dict[str, str]] = [
-    {"key": "decote", "label": "Décote vs marché (DVF)", "short": "Décote", "icon": "euro", "accent": "var(--viz-1)"},
-    {"key": "futur_transport", "label": "Transport futur (Grand Paris)", "short": "GPE", "icon": "route", "accent": "var(--viz-2)"},
-    {"key": "signaux_vendeur", "label": "Signaux vendeur (NLP)", "short": "Vendeur", "icon": "zap", "accent": "var(--viz-6)"},
-    {"key": "anciennete", "label": "Ancienneté / levier négo", "short": "Négo", "icon": "history", "accent": "var(--viz-3)"},
-    {"key": "dpe_travaux", "label": "DPE / déficit foncier", "short": "DPE", "icon": "leaf", "accent": "var(--viz-8)"},
-    {"key": "charges", "label": "Charges copropriété", "short": "Charges", "icon": "layers", "accent": "var(--viz-5)"},
-    {"key": "acces_actuel", "label": "Accès transports actuel", "short": "Accès", "icon": "train", "accent": "var(--brand-500)"},
+    {"key": "decote", "label": "Décote vs marché (DVF)", "short": "Décote",
+     "icon": "euro", "accent": "var(--viz-1)"},
+    {"key": "futur_transport", "label": "Transport futur (Grand Paris)", "short": "GPE",
+     "icon": "route", "accent": "var(--viz-2)"},
+    {"key": "signaux_vendeur", "label": "Signaux vendeur (NLP)", "short": "Vendeur",
+     "icon": "zap", "accent": "var(--viz-6)"},
+    {"key": "anciennete", "label": "Ancienneté / levier négo", "short": "Négo",
+     "icon": "history", "accent": "var(--viz-3)"},
+    {"key": "dpe_travaux", "label": "DPE / déficit foncier", "short": "DPE",
+     "icon": "leaf", "accent": "var(--viz-8)"},
+    {"key": "charges", "label": "Charges copropriété", "short": "Charges",
+     "icon": "layers", "accent": "var(--viz-5)"},
+    {"key": "acces_actuel", "label": "Accès transports actuel", "short": "Accès",
+     "icon": "train", "accent": "var(--brand-500)"},
 ]
 
 _SOURCE_LABEL: dict[Source, str] = {
@@ -164,7 +171,10 @@ def _sources(summary: RunSummary, settings: Settings) -> list[dict[str, object]]
         stats = summary.by_source.get(key)
         label = _SOURCE_LABEL.get(Source(key), key)
         if stats is None:
-            out.append({"name": label, "status": "idle", "scanned": 0, "found": 0, "blocked": 0, "latency": 0, "proxy": "—"})
+            out.append(
+                {"name": label, "status": "idle", "scanned": 0, "found": 0,
+                 "blocked": 0, "latency": 0, "proxy": "—"}
+            )
         else:
             out.append({
                 "name": label,
@@ -216,7 +226,8 @@ def write_data_json(
 ) -> Path:
     out = Path(path)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(render_data_json(build_pepite_data(results, summary, settings, now)), encoding="utf-8")
+    payload = build_pepite_data(results, summary, settings, now)
+    out.write_text(render_data_json(payload), encoding="utf-8")
     return out
 
 
@@ -229,5 +240,6 @@ def write_data_live(
 ) -> Path:
     out = Path(path)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(render_data_js(build_pepite_data(results, summary, settings, now)), encoding="utf-8")
+    payload = build_pepite_data(results, summary, settings, now)
+    out.write_text(render_data_js(payload), encoding="utf-8")
     return out

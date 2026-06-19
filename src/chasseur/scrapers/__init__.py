@@ -2,6 +2,6 @@
 
 from __future__ import annotations
 
-from chasseur.scrapers.base import AntibotNotConfigured, Scraper, ScraperError, ScrapeQuery
+from chasseur.scrapers.base import AntibotNotConfigured, ScrapeQuery, Scraper, ScraperError
 
 __all__ = ["AntibotNotConfigured", "Scraper", "ScraperError", "ScrapeQuery"]

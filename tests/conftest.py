@@ -65,7 +65,9 @@ def pepite() -> tuple[Listing, EnrichedContext]:
         transport=TransportContext(
             checked=True,
             future_stations=[
-                FutureStation(name="Bécon-les-Bruyères", line="M15 Ouest", distance_m=430, opening_year=2031)
+                FutureStation(
+                    name="Bécon-les-Bruyères", line="M15 Ouest", distance_m=430, opening_year=2031
+                )
             ],
             defense_minutes=17,
         ),

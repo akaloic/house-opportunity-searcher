@@ -16,7 +16,7 @@ from collections.abc import Iterable, Iterator
 
 from chasseur.antibot.session import AntibotError, StealthSession
 from chasseur.models import Listing, PropertyType, Source
-from chasseur.scrapers.base import AntibotNotConfigured, Scraper, ScrapeQuery
+from chasseur.scrapers.base import AntibotNotConfigured, ScrapeQuery, Scraper
 
 API_URL = "https://api.leboncoin.fr/finder/search"
 
@@ -116,7 +116,9 @@ class LeBonCoinScraper(Scraper):
         try:
             data = json.loads(result.text)
         except json.JSONDecodeError as exc:
-            raise AntibotNotConfigured(f"LeBonCoin : réponse non-JSON (challenge ?) : {exc}") from exc
+            raise AntibotNotConfigured(
+                f"LeBonCoin : réponse non-JSON (challenge ?) : {exc}"
+            ) from exc
 
         ads = data.get("ads") if isinstance(data, dict) else None
         yield from _emit(ads, self._parse, query.max_results)

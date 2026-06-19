@@ -24,9 +24,8 @@ def format_subject(listing: Listing, score: Score) -> str:
 
 def format_alert(listing: Listing, score: Score, ctx: EnrichedContext) -> str:
     badge = _BADGE.get(score.level, "")
-    where = " ".join(
-        part for part in [listing.city, f"({listing.postal_code})" if listing.postal_code else None] if part
-    )
+    where_parts = [listing.city, f"({listing.postal_code})" if listing.postal_code else None]
+    where = " ".join(part for part in where_parts if part)
     lines = [
         f"{badge} {score.level.value.upper()} — Score {score.total:.0f}/100 — {where}".strip(),
         f"{listing.title}",

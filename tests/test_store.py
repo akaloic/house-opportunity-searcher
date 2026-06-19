@@ -10,7 +10,8 @@ from chasseur.storage.db import SQLiteStore
 def test_upsert_dedup_and_alert_cooldown(tmp_path: Path) -> None:
     store = SQLiteStore(tmp_path / "t.sqlite")
     listing = Listing(
-        source=Source.sample, source_id="a", price=200000, surface_m2=40, postal_code="92400", rooms=2
+        source=Source.sample, source_id="a", price=200000,
+        surface_m2=40, postal_code="92400", rooms=2,
     )
     now = datetime(2026, 6, 13, 12)
 
