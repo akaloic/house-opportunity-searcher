@@ -4,14 +4,17 @@ import {
   Star, Gauge, Ruler, Maximize2, Clock, Building2, HelpCircle, ArrowUpRight,
 } from 'lucide-react'
 import { useCountUp } from '../lib/useCountUp'
+import { useInView } from '../lib/useInView'
 
-/* ---------------- CountUp (compteur animé formaté fr-FR) ---------------- */
+/* ---------------- CountUp (compteur animé formaté fr-FR, déclenché au scroll) ---------------- */
 export function CountUp({
   end, durationMs = 1200, decimals = 0, prefix = '', suffix = '',
 }: { end: number; durationMs?: number; decimals?: number; prefix?: string; suffix?: string }) {
-  const v = useCountUp(end, durationMs)
-  const txt = v.toLocaleString('fr-FR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
-  return <>{prefix}{txt}{suffix}</>
+  const { ref, inView } = useInView<HTMLSpanElement>()
+  const v = useCountUp(end, durationMs, inView)
+  const shown = inView ? v : 0
+  const txt = shown.toLocaleString('fr-FR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+  return <span ref={ref}>{prefix}{txt}{suffix}</span>
 }
 
 // Registry name(string)→composant, pour les icônes pilotées par les données (CRITERIA).

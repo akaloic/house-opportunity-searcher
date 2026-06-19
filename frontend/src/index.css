@@ -378,12 +378,15 @@ select.field { appearance: none; cursor: pointer; padding-right: 28px; }
 .leaflet-bar a { background: var(--surface-3) !important; color: var(--text-default) !important; border-color: var(--border-default) !important; }
 .leaflet-bar a:hover { background: var(--surface-4) !important; }
 
-/* ============================================================ Entrance animations */
-@keyframes fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-.anim { opacity: 0; animation: fade-up var(--dur-slow) var(--ease-out) forwards; }
-.d1 { animation-delay: 0.04s; } .d2 { animation-delay: 0.10s; } .d3 { animation-delay: 0.17s; }
-.d4 { animation-delay: 0.24s; } .d5 { animation-delay: 0.31s; } .d6 { animation-delay: 0.38s; }
-@media (prefers-reduced-motion: reduce) { .anim { opacity: 1; animation: none; } }
+/* ============================================================ Entrance animations (scroll-triggered)
+   `.anim` reste masqué ; le hook useRevealOnScroll ajoute `.in` quand l'élément
+   entre dans le viewport → l'animation fade-up se joue (avec stagger d1…d6). */
+@keyframes fade-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+.anim { opacity: 0; transform: translateY(16px); }
+.anim.in { animation: fade-up var(--dur-slow) var(--ease-out) forwards; }
+.d1 { animation-delay: 0.04s; } .d2 { animation-delay: 0.10s; } .d3 { animation-delay: 0.16s; }
+.d4 { animation-delay: 0.22s; } .d5 { animation-delay: 0.28s; } .d6 { animation-delay: 0.34s; }
+@media (prefers-reduced-motion: reduce) { .anim { opacity: 1 !important; transform: none !important; animation: none !important; } }
 
 /* ============================================================ Mobile sidebar -> top bar */
 @media (max-width: 860px) {

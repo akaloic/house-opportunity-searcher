@@ -3,6 +3,7 @@ import { Sparkles, ArrowRight, Building2, MapPin, Train, Zap, Euro, Gauge, Layer
 import type { PepiteData, Listing, ViewId } from '../types'
 import { fmtEur, decotePct, economyEur, scoreLabel } from '../lib/format'
 import { useCountUp } from '../lib/useCountUp'
+import { useRevealOnScroll } from '../lib/useInView'
 import { Card, Panel, StatCard, Badge, Delta, Button, CountUp } from '../components/ui'
 import { ScoreGauge, ScoreRadar, ScoreBars, DrawCurve } from '../components/charts'
 import { OppCard, FeedRow } from '../components/listing'
@@ -36,6 +37,7 @@ export default function Overview({
     value: Math.round(ranked.reduce((s, l) => s + (l.crit[c.key] ?? 0), 0) / Math.max(1, ranked.length)),
   }))
 
+  const revealRef = useRevealOnScroll<HTMLDivElement>()
   const topDec = top ? decotePct(top) : 0
   const topEco = top ? economyEur(top) : 0
 
@@ -48,7 +50,7 @@ export default function Overview({
   })()
 
   return (
-    <div className="page">
+    <div className="page" ref={revealRef}>
       {/* ---------------- HERO ---------------- */}
       <section className="hero">
         <div className="hero-left anim d1">

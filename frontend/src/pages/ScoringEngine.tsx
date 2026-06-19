@@ -3,6 +3,7 @@ import { SlidersHorizontal, Filter, Zap, Bell, Mail, Check, Plus } from 'lucide-
 import type { PepiteData, Listing } from '../types'
 import { fmtEur } from '../lib/format'
 import { Panel, Badge, Button, RangeSlider, Switch, Icon } from '../components/ui'
+import { useRevealOnScroll } from '../lib/useInView'
 import { ScoreGauge } from '../components/charts'
 
 const DPE_RANK: Record<string, number> = { A: 0, B: 1, C: 2, D: 3, E: 4, F: 5, G: 6 }
@@ -14,6 +15,7 @@ function loadCfg(): any {
 
 export default function ScoringEngine({ data }: { data: PepiteData }) {
   const { CRITERIA, WEIGHTS, LISTINGS } = data
+  const revealRef = useRevealOnScroll<HTMLDivElement>()
   const PRESETS: Record<string, Record<string, number>> = {
     'Équilibré': WEIGHTS,
     'Investisseur': { decote: 40, futur_transport: 26, signaux_vendeur: 12, anciennete: 8, dpe_travaux: 6, charges: 5, acces_actuel: 3 },
@@ -60,7 +62,7 @@ export default function ScoringEngine({ data }: { data: PepiteData }) {
   const matches = scored.filter((l) => l.preview >= threshold).length
 
   return (
-    <div className="page">
+    <div className="page" ref={revealRef}>
       <div className="section-head anim d1" style={{ marginBottom: 18 }}>
         <div className="section-title">Moteur de scoring</div>
         <Badge tone="neutral">7 critères d'expert · pondérables</Badge>

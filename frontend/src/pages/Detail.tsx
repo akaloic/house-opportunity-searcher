@@ -6,6 +6,7 @@ import {
 import type { PepiteData, Listing } from '../types'
 import { fmtEur, fmtAgo, decotePct, scoreColor, scoreLabel } from '../lib/format'
 import { Card, Panel, Badge, Delta, Button, IconButton, Icon, CountUp } from '../components/ui'
+import { useRevealOnScroll } from '../lib/useInView'
 import { ScoreGauge, ScoreRadar } from '../components/charts'
 
 function Fact({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
@@ -55,6 +56,7 @@ export default function Detail({
   data, listing, onBack, onOpen, fav, toggleFav,
 }: { data: PepiteData; listing: Listing; onBack: () => void; onOpen: (l: Listing) => void; fav: boolean; toggleFav: (id: string) => void }) {
   const l = listing
+  const revealRef = useRevealOnScroll<HTMLDivElement>()
   const all = [...data.LISTINGS].sort((a, b) => b.score - a.score)
   const idx = Math.max(0, all.findIndex((x) => x.id === l.id))
   const prev = all[idx - 1] || null
@@ -82,7 +84,7 @@ export default function Detail({
   const marketDelta = l.marketPpm2 - l.ppm2
 
   return (
-    <div className="page">
+    <div className="page" ref={revealRef}>
       {/* header */}
       <div className="anim d1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <IconButton label="Retour" onClick={onBack}><ChevronLeft size={18} /></IconButton>

@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 
-// Compteur animé (ease-out) pour les grands chiffres du hero — effet Finary.
-export function useCountUp(target: number, durationMs = 1100): number {
+// Compteur animé (ease-out) pour les grands chiffres — effet Finary.
+// `start` permet de retarder le comptage jusqu'à l'entrée dans le viewport.
+export function useCountUp(target: number, durationMs = 1100, start = true): number {
   const [value, setValue] = useState(0)
   const startRef = useRef<number | null>(null)
   const rafRef = useRef<number>(0)
 
   useEffect(() => {
+    if (!start) return
     if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
       setValue(target)
       return
@@ -21,7 +23,7 @@ export function useCountUp(target: number, durationMs = 1100): number {
     }
     rafRef.current = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(rafRef.current)
-  }, [target, durationMs])
+  }, [target, durationMs, start])
 
   return value
 }

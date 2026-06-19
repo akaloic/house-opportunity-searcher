@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Layers, TrendingUp, Wifi, Server, List, Shield, Activity, Check, AlertTriangle, Download, Pause, Play } from 'lucide-react'
 import type { PepiteData, SourceStat, LogEntry } from '../types'
 import { Panel, StatCard, Badge, IconButton } from '../components/ui'
+import { useRevealOnScroll } from '../lib/useInView'
 import { Sparkline } from '../components/charts'
 
 const THROUGHPUT = [38, 42, 31, 55, 61, 48, 72, 80, 66, 90, 84, 102, 95, 78, 88, 110, 124, 98, 86, 70, 64, 58, 49, 53]
@@ -55,6 +56,7 @@ function LogRow({ g }: { g: LogEntry }) {
 
 export default function Monitoring({ data }: { data: PepiteData }) {
   const [paused, setPaused] = useState(false)
+  const revealRef = useRevealOnScroll<HTMLDivElement>()
   const peak = THROUGHPUT.indexOf(Math.max(...THROUGHPUT))
 
   const exportLogs = () => {
@@ -68,7 +70,7 @@ export default function Monitoring({ data }: { data: PepiteData }) {
   }
 
   return (
-    <div className="page">
+    <div className="page" ref={revealRef}>
       <div className="section-head anim d1" style={{ marginBottom: 18 }}>
         <div className="section-title">Monitoring technique</div>
         <StatusDot status="running" label="Pipeline actif" />

@@ -4,21 +4,10 @@ import {
   AreaChart, Area, Tooltip,
 } from 'recharts'
 import { scoreColor } from '../lib/format'
+import { useInView } from '../lib/useInView'
 
 const prefersReduced = () =>
   typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-
-// Déclenche `true` juste après le montage (2× rAF → la frame "état 0" est peinte
-// avant la transition CSS, garantissant l'animation d'entrée).
-function useMountFlag(enabled = true): boolean {
-  const [on, setOn] = useState(!enabled || prefersReduced())
-  useEffect(() => {
-    if (!enabled || prefersReduced()) return
-    const id = requestAnimationFrame(() => requestAnimationFrame(() => setOn(true)))
-    return () => cancelAnimationFrame(id)
-  }, [enabled])
-  return on
-}
 
 /* ---------------- ScoreGauge — jauge circulaire SVG ---------------- */
 export function ScoreGauge({
@@ -28,9 +17,10 @@ export function ScoreGauge({
   const c = 2 * Math.PI * r
   const pct = Math.max(0, Math.min(100, value)) / 100
   const color = scoreColor(value)
-  const shown = useMountFlag(animate)
+  const { ref, inView } = useInView<HTMLDivElement>()
+  const shown = !animate || prefersReduced() ? true : inView
   return (
-    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+    <div ref={ref} style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
       <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--surface-4)" strokeWidth={thickness} />
         <circle
@@ -133,9 +123,10 @@ export function ScoreBars({ values }: { values: number[] }) {
     else buckets[0]++
   }
   const max = Math.max(1, ...buckets)
-  const shown = useMountFlag()
+  const { ref, inView } = useInView<HTMLDivElement>()
+  const shown = prefersReduced() ? true : inView
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, height: 130, paddingTop: 8 }}>
+    <div ref={ref} style={{ display: 'flex', alignItems: 'flex-end', gap: 10, height: 130, paddingTop: 8 }}>
       {buckets.map((b, i) => (
         <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, height: '100%' }}>
           <div style={{ flex: 1, width: '100%', display: 'flex', alignItems: 'flex-end' }}>
@@ -172,7 +163,8 @@ export function DrawCurve({
   const W = 600
   const H = height
   const pad = 14
-  const shown = useMountFlag()
+  const { ref, inView } = useInView<SVGSVGElement>()
+  const shown = prefersReduced() ? true : inView
   const lineRef = useRef<SVGPathElement>(null)
   const [len, setLen] = useState(1)
   useEffect(() => {
@@ -194,7 +186,7 @@ export function DrawCurve({
   const last = pts[pts.length - 1]
 
   return (
-    <svg width="100%" height={height} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ display: 'block', overflow: 'visible' }}>
+    <svg ref={ref} width="100%" height={height} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ display: 'block', overflow: 'visible' }}>
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity={0.42} />

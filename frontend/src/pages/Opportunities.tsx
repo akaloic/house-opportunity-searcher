@@ -2,6 +2,7 @@ import { useMemo, useState, lazy, Suspense } from 'react'
 import { Map as MapIcon, Activity, Building2, Search } from 'lucide-react'
 import type { PepiteData, Listing } from '../types'
 import { Panel, Badge } from '../components/ui'
+import { useRevealOnScroll } from '../lib/useInView'
 import { OppCard, FeedRow } from '../components/listing'
 
 const MapPanel = lazy(() => import('../components/MapPanel'))
@@ -15,6 +16,7 @@ export default function Opportunities({
 }) {
   const [sort, setSort] = useState<Sort>('score')
   const [sel, setSel] = useState<string | undefined>(undefined)
+  const revealRef = useRevealOnScroll<HTMLDivElement>()
 
   const q = query.trim().toLowerCase()
   const filtered = useMemo(() => {
@@ -45,7 +47,7 @@ export default function Opportunities({
   )
 
   return (
-    <div className="page">
+    <div className="page" ref={revealRef}>
       <div className="section-head anim d1" style={{ marginBottom: 18 }}>
         <div>
           <div className="section-title">Opportunités · Île-de-France</div>
