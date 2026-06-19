@@ -317,7 +317,7 @@ export default function Detail({
 
       {/* lightbox */}
       {lb >= 0 && photos[lb] && (
-        <div onClick={() => setLb(-1)} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(4,5,12,0.78)', backdropFilter: 'blur(18px) saturate(140%)', WebkitBackdropFilter: 'blur(18px) saturate(140%)', display: 'grid', placeItems: 'center', padding: 48 }}>
+        <div onClick={() => setLb(-1)} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(8,7,10,0.82)', backdropFilter: 'blur(20px) saturate(130%)', WebkitBackdropFilter: 'blur(20px) saturate(130%)', display: 'grid', placeItems: 'center', padding: 48 }}>
           <img src={photos[lb]} alt="" referrerPolicy="no-referrer" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '92%', maxHeight: '92%', objectFit: 'contain', borderRadius: 'var(--radius-lg)', boxShadow: '0 30px 90px rgba(0,0,0,0.6)', border: '1px solid var(--border-default)' }} />
           {photos.length > 1 && <>
             <button onClick={(e) => { e.stopPropagation(); setLb((lb - 1 + photos.length) % photos.length) }} aria-label="Précédent" style={{ position: 'absolute', left: 24, top: '50%', transform: 'translateY(-50%)', width: 44, height: 44, borderRadius: 999, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(12px)', border: '1px solid var(--border-default)', color: 'var(--text-strong)', cursor: 'pointer', fontSize: 24 }}>‹</button>

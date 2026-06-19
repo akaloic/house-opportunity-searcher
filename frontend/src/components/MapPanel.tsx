@@ -13,7 +13,7 @@ function markerIcon(score: number, selected: boolean): L.DivIcon {
     className: '',
     iconSize: [s, s],
     iconAnchor: [s / 2, s / 2],
-    html: `<div style="width:${s}px;height:${s}px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(6,7,14,0.9);border:2px solid ${color};color:${color};font:700 ${selected ? 13 : 12}px 'JetBrains Mono',monospace;box-shadow:${shadow};">${Math.round(score)}</div>`,
+    html: `<div style="width:${s}px;height:${s}px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(12,11,15,0.92);border:2px solid ${color};color:${color};font:700 ${selected ? 13 : 12}px 'JetBrains Mono',monospace;box-shadow:${shadow};">${Math.round(score)}</div>`,
   })
 }
 
