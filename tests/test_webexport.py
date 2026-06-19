@@ -35,3 +35,27 @@ def test_pepite_data_matches_design_contract() -> None:
     assert "window.PEPITE_DATA" in js
     assert "window.fmtEur" in js
     store.close()
+
+
+def test_listing_exports_engine_reco() -> None:
+    """L'export embarque la reco RÉELLE du moteur (source unique de vérité)."""
+    settings = get_settings()
+    now = datetime(2026, 6, 13, 12)
+    store = SQLiteStore(":memory:")
+    results, summary = run_pipeline(
+        settings, demo=True, as_of=now.date(), now=now, store=store, notify=False
+    )
+    data = build_pepite_data(results, summary, settings, now)
+
+    for item, sl in zip(data["LISTINGS"], results, strict=True):
+        reco = item["reco"]
+        # offre d'attaque + reco chiffrée alignées sur le moteur
+        assert reco["suggestedOfferPrice"] == sl.score.suggested_offer_price
+        assert reco["recommendation"] == sl.score.recommendation
+        assert reco["fullCost"] == sl.score.full_cost
+        assert isinstance(reco["flags"], list)
+        assert set(reco["sellerSignals"]) == {"urgency", "redflags"}
+        # cohérence du coût de revient : prix + travaux + frais notaire
+        works = reco["renovation"]["totalCost"] if reco["renovation"] else 0
+        assert reco["fullCost"] >= sl.listing.price + works
+    store.close()

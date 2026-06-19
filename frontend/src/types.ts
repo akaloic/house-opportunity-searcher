@@ -17,6 +17,23 @@ export interface MetroStation {
   min: number
 }
 
+// Sortie réelle du moteur de scoring Python (engine.py / recommend.py),
+// embarquée par webexport. Absente du jeu démo → fallback heuristique côté front.
+export interface Reco {
+  recommendation: string
+  level: string
+  suggestedOfferPrice: number | null
+  suggestedDiscount: number | null
+  fullCost: number | null
+  effectivePpm2: number | null
+  netYield: number | null
+  decotePct: number | null
+  defenseMinutes: number | null
+  flags: string[]
+  renovation: { totalCost: number; costPerM2: number; condition: string; notes: string } | null
+  sellerSignals: { urgency: string[]; redflags: string[] }
+}
+
 export interface Listing {
   id: string
   url: string
@@ -47,6 +64,7 @@ export interface Listing {
   y: number
   tags: string[]
   fav: boolean
+  reco?: Reco
 }
 
 export interface SourceStat {

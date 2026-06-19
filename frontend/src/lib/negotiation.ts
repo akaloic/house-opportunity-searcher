@@ -24,6 +24,10 @@ export interface NegotiationPlan {
   leviers: Lever[]
   dpeAlerte: string | null
   verdict: string
+  source: 'engine' | 'heuristic'
+  netYield?: number | null
+  defenseMinutes?: number | null
+  redflags?: string[]
 }
 
 // €/m² de travaux estimés « à la louche » selon mots-clés du titre + DPE.
@@ -92,6 +96,50 @@ export function buildNegotiationPlan(l: Listing): NegotiationPlan {
   return {
     travauxPpm2, travaux, fraisNotaire, coutComplet,
     offreSuggeree, ecartOffre, ecartPct,
-    leviers: buildLevers(l), dpeAlerte: dpeAlerte(l.dpe), verdict,
+    leviers: buildLevers(l), dpeAlerte: dpeAlerte(l.dpe), verdict, source: 'heuristic',
+  }
+}
+
+// Couleur d'un flag moteur selon son contenu (les flags sont des phrases d'expert).
+function flagTone(f: string): Lever['tone'] {
+  const s = f.toLowerCase()
+  if (s.startsWith('⚠️') || /interdit/.test(s)) return 'danger'
+  if (/décote|decote/.test(s)) return 'gold'
+  if (/future gare|grand paris|eole|gpe/.test(s)) return 'info'
+  if (/défense|defense|déficit foncier|deficit foncier/.test(s)) return 'success'
+  return 'neutral'
+}
+
+const isDataGap = (f: string) => /non calcul|inconnu|non renseign|non configur|incertain/i.test(f)
+
+// Plan affiché : privilégie la reco RÉELLE du moteur (l.reco) ; à défaut (démo
+// embarquée), retombe sur l'heuristique client buildNegotiationPlan.
+export function resolvePlan(l: Listing): NegotiationPlan {
+  const r = l.reco
+  if (!r) return buildNegotiationPlan(l)
+
+  const travaux = r.renovation?.totalCost ?? 0
+  const travauxPpm2 = r.renovation?.costPerM2 ?? 0
+  const coutComplet = r.fullCost ?? l.price + travaux + Math.round(l.price * NOTAIRE_RATE)
+  const fraisNotaire = Math.max(0, coutComplet - l.price - travaux)
+  const offreSuggeree = r.suggestedOfferPrice ?? l.price
+  const ecartOffre = Math.max(0, l.price - offreSuggeree)
+  const ecartPct = r.suggestedDiscount != null ? r.suggestedDiscount * 100 : l.price > 0 ? (ecartOffre / l.price) * 100 : 0
+
+  const leviers: Lever[] = (r.flags || [])
+    .filter((f) => !isDataGap(f))
+    .slice(0, 5)
+    .map((f) => ({ tone: flagTone(f), text: f.replace(/^⚠️\s*/, '') }))
+
+  return {
+    travauxPpm2, travaux, fraisNotaire, coutComplet,
+    offreSuggeree, ecartOffre, ecartPct,
+    leviers: leviers.length ? leviers : buildLevers(l),
+    dpeAlerte: dpeAlerte(l.dpe),
+    verdict: r.recommendation || buildNegotiationPlan(l).verdict,
+    source: 'engine',
+    netYield: r.netYield,
+    defenseMinutes: r.defenseMinutes,
+    redflags: r.sellerSignals?.redflags,
   }
 }

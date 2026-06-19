@@ -70,6 +70,40 @@ def _tags(sl: ScoredListing) -> list[str]:
     return tags[:3]
 
 
+def _reco(sl: ScoredListing) -> dict[str, object]:
+    """Sortie RÉELLE du moteur de scoring (recommend.py / engine.py) — la reco
+    d'action chiffrée, l'offre d'attaque, le coût complet, les flags. Le front
+    affiche ça en priorité (source unique de vérité) plutôt que de re-deviner."""
+    score, ctx = sl.score, sl.context
+    reno = ctx.renovation
+    return {
+        "recommendation": score.recommendation,
+        "level": score.level.value,
+        "suggestedOfferPrice": score.suggested_offer_price,
+        "suggestedDiscount": score.suggested_discount,
+        "fullCost": score.full_cost,
+        "effectivePpm2": score.effective_ppm2,
+        "netYield": score.net_yield,
+        "decotePct": round(score.decote_pct * 100, 1) if score.decote_pct is not None else None,
+        "defenseMinutes": ctx.transport.defense_minutes,
+        "flags": score.flags,
+        "renovation": (
+            {
+                "totalCost": round(reno.total_cost),
+                "costPerM2": round(reno.cost_per_m2),
+                "condition": reno.condition.value,
+                "notes": reno.notes,
+            }
+            if reno is not None
+            else None
+        ),
+        "sellerSignals": {
+            "urgency": ctx.seller_signals.matched_urgency,
+            "redflags": ctx.seller_signals.matched_redflags,
+        },
+    }
+
+
 def _map_listing(sl: ScoredListing, settings: Settings, now: datetime) -> dict[str, object]:
     listing, ctx, score = sl.listing, sl.context, sl.score
     neutral = settings.scoring.neutral_value
@@ -119,6 +153,7 @@ def _map_listing(sl: ScoredListing, settings: Settings, now: datetime) -> dict[s
         "y": y,
         "tags": _tags(sl),
         "fav": False,
+        "reco": _reco(sl),
     }
 
 

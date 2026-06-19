@@ -6,7 +6,7 @@ import {
 } from 'lucide-react'
 import type { PepiteData, Listing } from '../types'
 import { fmtEur, fmtAgo, decotePct, scoreColor, scoreLabel } from '../lib/format'
-import { buildNegotiationPlan, type Lever } from '../lib/negotiation'
+import { resolvePlan, type Lever } from '../lib/negotiation'
 import { Card, Panel, Badge, Delta, Button, IconButton, Icon, CountUp } from '../components/ui'
 import { useRevealOnScroll } from '../lib/useInView'
 import { ScoreGauge, ScoreRadar } from '../components/charts'
@@ -98,7 +98,7 @@ export default function Detail({
   const totalW = Object.values(data.WEIGHTS).reduce((a, b) => a + b, 0)
   const axes = data.CRITERIA.map((c) => ({ short: c.short, value: l.crit[c.key] ?? 0 }))
   const marketDelta = l.marketPpm2 - l.ppm2
-  const plan = buildNegotiationPlan(l)
+  const plan = resolvePlan(l)
 
   return (
     <div className="page" ref={revealRef}>
@@ -197,7 +197,12 @@ export default function Detail({
           </Card>
 
           {/* Plan d'action — reco chiffrée */}
-          <Panel title="Plan d'action" subtitle="Stratégie de négociation chiffrée" icon={<Target size={16} />} className="card-glow-gold">
+          <Panel
+            title="Plan d'action"
+            subtitle={plan.source === 'engine' ? 'Moteur de scoring · reco chiffrée' : 'Estimation · stratégie de négociation'}
+            icon={<Target size={16} />} className="card-glow-gold"
+            actions={<Badge tone={plan.source === 'engine' ? 'brand' : 'neutral'} dot={plan.source === 'engine'}>{plan.source === 'engine' ? 'moteur' : 'estimation'}</Badge>}
+          >
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 10, marginBottom: 14 }}>
               <div>
                 <div className="eyebrow" style={{ marginBottom: 5 }}>Offre d'attaque suggérée</div>
@@ -228,6 +233,23 @@ export default function Detail({
                 </div>
               ))}
             </div>
+
+            {(plan.defenseMinutes != null || plan.netYield != null) && (
+              <div style={{ display: 'flex', gap: 22, marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--border-subtle)' }}>
+                {plan.defenseMinutes != null && (
+                  <div>
+                    <div className="eyebrow" style={{ marginBottom: 4 }}>La Défense</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-md)', fontWeight: 700, color: 'var(--brand-400)' }}>{Math.round(plan.defenseMinutes)} min</div>
+                  </div>
+                )}
+                {plan.netYield != null && (
+                  <div>
+                    <div className="eyebrow" style={{ marginBottom: 4 }}>Rendement net est.</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-md)', fontWeight: 700, color: 'var(--text-strong)' }}>{(plan.netYield * 100).toFixed(1).replace('.', ',')} %</div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {plan.dpeAlerte && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, padding: '9px 11px', background: 'var(--danger-soft)', borderRadius: 'var(--radius-md)' }}>

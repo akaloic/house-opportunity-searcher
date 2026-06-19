@@ -80,7 +80,7 @@ window.PEPITE_DATA = {
       "marketPpm2": 7300,
       "dpe": "F",
       "source": "Échantillon",
-      "freshMin": 128820,
+      "freshMin": 131139,
       "photos": 1,
       "photoUrls": [
         "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
@@ -115,7 +115,41 @@ window.PEPITE_DATA = {
         "Sous le marché",
         "Vendeur qui craque"
       ],
-      "fav": false
+      "fav": false,
+      "reco": {
+        "recommendation": "Appelle aujourd'hui, cale une visite sous 48h. Offre d'attaque -20% (214 400 EUR) — justifiée par signaux vendeur (cause mutation, mutation professionnelle, ideal investisseur, a debattre, libre rapidement) + en ligne depuis 91 j + 2 baisses de prix + DPE F + multi-diffusion x3 + vente de particulier.",
+        "level": "hot",
+        "suggestedOfferPrice": 214400.0,
+        "suggestedDiscount": 0.2,
+        "fullCost": 288100.0,
+        "effectivePpm2": 6548.0,
+        "netYield": null,
+        "decotePct": 16.6,
+        "defenseMinutes": 16.8,
+        "flags": [
+          "Décote +17% vs médiane micro-quartier 7300 EUR/m2 (DVF)",
+          "Future gare Becon-les-Bruyeres (M15 Ouest) à 427 m, ouverture ~2031",
+          "Levier déficit foncier possible (travaux déductibles des revenus fonciers)",
+          "⚠️ DPE F : location interdite dès 2028 — budgéter la rénovation énergétique",
+          "Accès La Défense ultra-compétitif (~17 min porte-à-porte)"
+        ],
+        "renovation": {
+          "totalCost": 0,
+          "costPerM2": 0,
+          "condition": "good",
+          "notes": "état correct, aléa travaux faible"
+        },
+        "sellerSignals": {
+          "urgency": [
+            "cause mutation",
+            "mutation professionnelle",
+            "ideal investisseur",
+            "a debattre",
+            "libre rapidement"
+          ],
+          "redflags": []
+        }
+      }
     },
     {
       "id": "co-003",
@@ -136,7 +170,7 @@ window.PEPITE_DATA = {
       "marketPpm2": 5600,
       "dpe": "G",
       "source": "Échantillon",
-      "freshMin": 228120,
+      "freshMin": 230439,
       "photos": 0,
       "photoUrls": [],
       "lat": 48.923,
@@ -174,7 +208,42 @@ window.PEPITE_DATA = {
         "Passoire (G)",
         "Future gare"
       ],
-      "fav": false
+      "fav": false,
+      "reco": {
+        "recommendation": "À surveiller — recontacte si le prix bouge ou si une visite se libère. Offre d'attaque -20% (236 000 EUR) — justifiée par signaux vendeur (succession, vente rapide) + en ligne depuis 160 j + DPE G. Budget travaux estimé ~84 500 EUR (rénovation lourde / tout à refaire). Attention : non louable en l'état, monter le dossier sur la revente ou la rénovation.",
+        "level": "interesting",
+        "suggestedOfferPrice": 236000.0,
+        "suggestedDiscount": 0.2,
+        "fullCost": 401625.0,
+        "effectivePpm2": 6179.0,
+        "netYield": null,
+        "decotePct": 19.0,
+        "defenseMinutes": 21.0,
+        "flags": [
+          "Décote +19% vs médiane micro-quartier 5600 EUR/m2 (DVF)",
+          "Future gare Bois-Colombes (M15 Ouest) à 1346 m, ouverture ~2031",
+          "Levier déficit foncier possible (travaux déductibles des revenus fonciers)",
+          "⚠️ DPE G : location déjà interdite (loi Climat) — viser revente ou rénovation",
+          "Charges copro élevées (1.2%/an du prix) — rentabilité grevée"
+        ],
+        "renovation": {
+          "totalCost": 84500,
+          "costPerM2": 1300,
+          "condition": "gut",
+          "notes": "rénovation lourde / tout à refaire"
+        },
+        "sellerSignals": {
+          "urgency": [
+            "succession",
+            "vente rapide"
+          ],
+          "redflags": [
+            "a renover entierement",
+            "gros travaux",
+            "travaux a prevoir"
+          ]
+        }
+      }
     },
     {
       "id": "pu-005",
@@ -195,7 +264,7 @@ window.PEPITE_DATA = {
       "marketPpm2": 7300,
       "dpe": "D",
       "source": "Échantillon",
-      "freshMin": 7800,
+      "freshMin": 10119,
       "photos": 0,
       "photoUrls": [],
       "lat": 48.897,
@@ -221,7 +290,7 @@ window.PEPITE_DATA = {
         "decote": 100,
         "futur_transport": 5,
         "signaux_vendeur": 50,
-        "anciennete": 8,
+        "anciennete": 11,
         "dpe_travaux": 50,
         "charges": 68,
         "acces_actuel": 50
@@ -232,7 +301,33 @@ window.PEPITE_DATA = {
         "Sous le marché",
         "Future gare"
       ],
-      "fav": false
+      "fav": false,
+      "reco": {
+        "recommendation": "À surveiller — recontacte si le prix bouge ou si une visite se libère. Offre d'attaque -7% (278 070 EUR) — justifiée par vente de particulier.",
+        "level": "interesting",
+        "suggestedOfferPrice": 278070.0,
+        "suggestedDiscount": 0.07,
+        "fullCost": 321425.0,
+        "effectivePpm2": 5542.0,
+        "netYield": null,
+        "decotePct": 29.4,
+        "defenseMinutes": 11.5,
+        "flags": [
+          "Décote +29% vs médiane micro-quartier 7300 EUR/m2 (DVF)",
+          "Future gare La Défense (M15 Ouest) à 1176 m, ouverture ~2031",
+          "Accès La Défense ultra-compétitif (~12 min porte-à-porte)"
+        ],
+        "renovation": {
+          "totalCost": 0,
+          "costPerM2": 0,
+          "condition": "good",
+          "notes": "état correct, aléa travaux faible"
+        },
+        "sellerSignals": {
+          "urgency": [],
+          "redflags": []
+        }
+      }
     },
     {
       "id": "as-002",
@@ -253,7 +348,7 @@ window.PEPITE_DATA = {
       "marketPpm2": 7000,
       "dpe": "E",
       "source": "Échantillon",
-      "freshMin": 11640,
+      "freshMin": 13959,
       "photos": 0,
       "photoUrls": [],
       "lat": 48.917,
@@ -279,7 +374,7 @@ window.PEPITE_DATA = {
         "decote": 78,
         "futur_transport": 16,
         "signaux_vendeur": 50,
-        "anciennete": 12,
+        "anciennete": 15,
         "dpe_travaux": 50,
         "charges": 69,
         "acces_actuel": 50
@@ -290,7 +385,37 @@ window.PEPITE_DATA = {
         "Sous le marché",
         "Future gare"
       ],
-      "fav": false
+      "fav": false,
+      "reco": {
+        "recommendation": "Veille passive : pas prioritaire en l'état. Offre d'attaque -5% (223 250 EUR). Budget travaux estimé ~13 300 EUR (rafraîchissement (peinture, sols)).",
+        "level": "watch",
+        "suggestedOfferPrice": 223250.0,
+        "suggestedDiscount": 0.05,
+        "fullCost": 265925.0,
+        "effectivePpm2": 6998.0,
+        "netYield": null,
+        "decotePct": 11.7,
+        "defenseMinutes": 24.6,
+        "flags": [
+          "Décote +12% vs médiane micro-quartier 7000 EUR/m2 (DVF)",
+          "Future gare Les Agnettes (M15 Ouest) à 778 m, ouverture ~2031"
+        ],
+        "renovation": {
+          "totalCost": 13300,
+          "costPerM2": 350,
+          "condition": "refresh",
+          "notes": "rafraîchissement (peinture, sols)"
+        },
+        "sellerSignals": {
+          "urgency": [],
+          "redflags": [
+            "souplex",
+            "rez-de-chaussee sur rue",
+            "atypique",
+            "vis-a-vis"
+          ]
+        }
+      }
     },
     {
       "id": "pu-004",
@@ -311,7 +436,7 @@ window.PEPITE_DATA = {
       "marketPpm2": 8200,
       "dpe": "C",
       "source": "Échantillon",
-      "freshMin": 40860,
+      "freshMin": 43179,
       "photos": 0,
       "photoUrls": [],
       "lat": 48.884,
@@ -332,7 +457,7 @@ window.PEPITE_DATA = {
         "decote": 50,
         "futur_transport": 12,
         "signaux_vendeur": 50,
-        "anciennete": 37,
+        "anciennete": 39,
         "dpe_travaux": 50,
         "charges": 68,
         "acces_actuel": 50
@@ -342,7 +467,33 @@ window.PEPITE_DATA = {
       "tags": [
         "Future gare"
       ],
-      "fav": false
+      "fav": false,
+      "reco": {
+        "recommendation": "Veille passive : pas prioritaire en l'état. Offre d'attaque -5% (315 400 EUR).",
+        "level": "watch",
+        "suggestedOfferPrice": 315400.0,
+        "suggestedDiscount": 0.05,
+        "fullCost": 356900.0,
+        "effectivePpm2": 8922.0,
+        "netYield": null,
+        "decotePct": -1.2,
+        "defenseMinutes": 10.3,
+        "flags": [
+          "Décote -1% vs médiane micro-quartier 8200 EUR/m2 (DVF)",
+          "Future gare La Défense (M15 Ouest) à 870 m, ouverture ~2031",
+          "Accès La Défense ultra-compétitif (~10 min porte-à-porte)"
+        ],
+        "renovation": {
+          "totalCost": 0,
+          "costPerM2": 0,
+          "condition": "new",
+          "notes": "rien à prévoir"
+        },
+        "sellerSignals": {
+          "urgency": [],
+          "redflags": []
+        }
+      }
     }
   ],
   "SOURCES": [
@@ -394,31 +545,31 @@ window.PEPITE_DATA = {
   ],
   "LOGS": [
     {
-      "time": "20:00:11",
+      "time": "10:39:22",
       "level": "info",
       "source": "sample",
       "message": "pu-005 scoré 61 (interesting)"
     },
     {
-      "time": "20:00:11",
+      "time": "10:39:22",
       "level": "info",
       "source": "sample",
       "message": "pu-004 scoré 28 (watch)"
     },
     {
-      "time": "20:00:11",
+      "time": "10:39:22",
       "level": "info",
       "source": "sample",
       "message": "co-003 scoré 65 (interesting)"
     },
     {
-      "time": "20:00:11",
+      "time": "10:39:22",
       "level": "info",
       "source": "sample",
       "message": "as-002 scoré 44 (watch)"
     },
     {
-      "time": "20:00:11",
+      "time": "10:39:22",
       "level": "ok",
       "source": "sample",
       "message": "cb-001 scoré 82 (hot)"
