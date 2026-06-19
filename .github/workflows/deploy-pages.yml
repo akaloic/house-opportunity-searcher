@@ -1,14 +1,15 @@
 name: Déploiement du dashboard Pépite (GitHub Pages)
 
-# Déploie le dashboard statique de veille immobilière sur GitHub Pages.
-# Données DÉMO uniquement (fixtures hors-ligne) — jamais de données scrapées réelles
-# en public (RGPD / CGU des portails). Le scraping live reste strictement local.
+# Build le front Vite/React (frontend/) et le déploie sur GitHub Pages.
+# Données DÉMO uniquement : `chasseur export-web` génère un JSON depuis les
+# fixtures hors-ligne (jamais de données scrapées réelles en public — RGPD / CGU).
+# Le front retombe sur sa démo embarquée si le JSON est absent.
 
 on:
   push:
     branches: [main]
     paths:
-      - 'web/**'
+      - 'frontend/**'
       - 'src/**'
       - 'fixtures/**'
       - '.github/workflows/deploy-pages.yml'
@@ -41,19 +42,35 @@ jobs:
       - name: Installer le moteur (coeur hors-ligne)
         run: pip install -e .
 
-      - name: Générer les données DÉMO (spectre complet du scoring)
+      - name: Générer les données DÉMO (JSON pour le front Vite)
         env:
           CHASSEUR_REQUIRE_BALCONY: 'false'
           CHASSEUR_MIN_FLOOR: '0'
           CHASSEUR_BUDGET_MAX: '360000'
           CHASSEUR_EXCLUDE_UNKNOWN_FLOOR: 'false'
-        run: chasseur export-web --demo
+        run: chasseur export-web --demo --json frontend/public/data.live.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Installer les dépendances front
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build du front (base = /house-opportunity-searcher/)
+        working-directory: frontend
+        env:
+          VITE_BASE: /house-opportunity-searcher/
+        run: npm run build
 
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: web
+          path: frontend/dist
 
       - id: deployment
         uses: actions/deploy-pages@v4

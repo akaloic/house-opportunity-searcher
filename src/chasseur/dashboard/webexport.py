@@ -167,6 +167,24 @@ def render_data_js(data: dict[str, object]) -> str:
     )
 
 
+def render_data_json(data: dict[str, object]) -> str:
+    """Contrat brut (mêmes clés que window.PEPITE_DATA) pour le front Vite/React."""
+    return json.dumps(data, ensure_ascii=False, indent=2)
+
+
+def write_data_json(
+    path: str | Path,
+    results: list[ScoredListing],
+    summary: RunSummary,
+    settings: Settings,
+    now: datetime,
+) -> Path:
+    out = Path(path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(render_data_json(build_pepite_data(results, summary, settings, now)), encoding="utf-8")
+    return out
+
+
 def write_data_live(
     path: str | Path,
     results: list[ScoredListing],

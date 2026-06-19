@@ -15,7 +15,7 @@ from datetime import datetime
 from pathlib import Path
 
 from chasseur.config import Settings, get_settings
-from chasseur.dashboard.webexport import write_data_live
+from chasseur.dashboard.webexport import write_data_json, write_data_live
 from chasseur.models import Listing
 from chasseur.pipeline import RunSummary, ScoredListing, build_refs, enrich_listing, run_pipeline
 from chasseur.scoring import score_listing
@@ -76,6 +76,9 @@ def cmd_export_web(args: argparse.Namespace, settings: Settings) -> int:
     results, summary = _run(args, settings, notify=False, now=now)
     out = write_data_live(args.output, results, summary, settings, now)
     print(f"✅ {len(results)} leads exportés vers {out}")
+    if getattr(args, "json", None):
+        out_json = write_data_json(args.json, results, summary, settings, now)
+        print(f"   ➜ JSON (front Vite) : {out_json}")
     print(f"   Lance le dashboard :  chasseur serve-web   (puis ouvre l'URL affichée)")
     return 0
 
@@ -157,6 +160,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_export.add_argument("--live", action="store_true", help="Scraping RÉEL BienIci + décote DVF")
     p_export.add_argument("--limit", type=int, default=60, help="Nb max d'annonces (mode live)")
     p_export.add_argument("-o", "--output", default=str(DEFAULT_WEB_DATA), help="Fichier data.live.js")
+    p_export.add_argument("--json", default=None, help="Écrit aussi un JSON brut (front Vite/React), ex: frontend/public/data.live.json")
     p_export.set_defaults(func=cmd_export_web)
 
     p_serve = sub.add_parser("serve-web", help="Sert le dashboard en local")
