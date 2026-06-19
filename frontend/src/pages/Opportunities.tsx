@@ -1,4 +1,4 @@
-import { useMemo, useState, lazy, Suspense } from 'react'
+import { useEffect, useMemo, useState, lazy, Suspense } from 'react'
 import { Map as MapIcon, Activity, Building2, Search } from 'lucide-react'
 import type { PepiteData, Listing } from '../types'
 import { Panel, Badge } from '../components/ui'
@@ -10,13 +10,16 @@ const MapPanel = lazy(() => import('../components/MapPanel'))
 type Sort = 'score' | 'frais' | 'fav'
 
 export default function Opportunities({
-  data, query, onOpen, favs, toggleFav,
+  data, query, onOpen, favs, toggleFav, favRequest = 0,
 }: {
-  data: PepiteData; query: string; onOpen: (l: Listing) => void; favs: Set<string>; toggleFav: (id: string) => void
+  data: PepiteData; query: string; onOpen: (l: Listing) => void; favs: Set<string>; toggleFav: (id: string) => void; favRequest?: number
 }) {
   const [sort, setSort] = useState<Sort>('score')
   const [sel, setSel] = useState<string | undefined>(undefined)
   const revealRef = useRevealOnScroll<HTMLDivElement>()
+
+  // Déclencheur "Mes favoris" depuis la sidebar → bascule le tri sur favoris.
+  useEffect(() => { if (favRequest > 0) setSort('fav') }, [favRequest])
 
   const q = query.trim().toLowerCase()
   const filtered = useMemo(() => {

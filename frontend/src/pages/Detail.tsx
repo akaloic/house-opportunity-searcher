@@ -2,12 +2,28 @@ import { useEffect, useState } from 'react'
 import {
   ChevronLeft, ChevronRight, Eye, Star, MapPin, Train, Clock, Ruler, Grid3x3,
   Layers, Maximize2, Building2, Leaf, Route, TrendingDown, TrendingUp, Gauge,
+  Target, AlertTriangle,
 } from 'lucide-react'
 import type { PepiteData, Listing } from '../types'
 import { fmtEur, fmtAgo, decotePct, scoreColor, scoreLabel } from '../lib/format'
+import { buildNegotiationPlan, type Lever } from '../lib/negotiation'
 import { Card, Panel, Badge, Delta, Button, IconButton, Icon, CountUp } from '../components/ui'
 import { useRevealOnScroll } from '../lib/useInView'
 import { ScoreGauge, ScoreRadar } from '../components/charts'
+
+const LEVER_COLOR: Record<Lever['tone'], string> = {
+  gold: 'var(--gold-400)', success: 'var(--success-500)', danger: 'var(--danger-500)',
+  info: 'var(--info-500)', neutral: 'var(--text-muted)',
+}
+
+function CostRow({ label, value, accent, total }: { label: string; value: string; accent?: boolean; total?: boolean }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', borderTop: total ? '1px solid var(--border-default)' : 'none' }}>
+      <span style={{ fontSize: 'var(--text-xs)', color: total ? 'var(--text-default)' : 'var(--text-muted)', fontWeight: total ? 600 : 400 }}>{label}</span>
+      <span style={{ fontFamily: 'var(--font-mono)', fontSize: total ? 'var(--text-md)' : 'var(--text-sm)', fontWeight: total ? 700 : 500, color: accent ? 'var(--gold-400)' : 'var(--text-strong)' }}>{value}</span>
+    </div>
+  )
+}
 
 function Fact({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
@@ -82,6 +98,7 @@ export default function Detail({
   const totalW = Object.values(data.WEIGHTS).reduce((a, b) => a + b, 0)
   const axes = data.CRITERIA.map((c) => ({ short: c.short, value: l.crit[c.key] ?? 0 }))
   const marketDelta = l.marketPpm2 - l.ppm2
+  const plan = buildNegotiationPlan(l)
 
   return (
     <div className="page" ref={revealRef}>
@@ -111,7 +128,7 @@ export default function Detail({
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 420px', gap: 16, alignItems: 'start', marginTop: 18 }} className="detail-grid">
+      <div className="detail-grid">
         {/* LEFT */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }} className="anim d2">
           <Card style={{ overflow: 'hidden' }}>
@@ -178,6 +195,52 @@ export default function Detail({
               </div>
             </div>
           </Card>
+
+          {/* Plan d'action — reco chiffrée */}
+          <Panel title="Plan d'action" subtitle="Stratégie de négociation chiffrée" icon={<Target size={16} />} className="card-glow-gold">
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 10, marginBottom: 14 }}>
+              <div>
+                <div className="eyebrow" style={{ marginBottom: 5 }}>Offre d'attaque suggérée</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-3xl)', fontWeight: 800, color: 'var(--brand-400)', lineHeight: 1, letterSpacing: '-0.02em' }}>
+                  <CountUp end={plan.offreSuggeree} durationMs={900} suffix=" €" />
+                </div>
+              </div>
+              {plan.ecartOffre > 0 && (
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--success-500)' }}>−{fmtEur(plan.ecartOffre)} €</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-faint)' }}>vs prix affiché · −{plan.ecartPct.toFixed(0)} %</div>
+                </div>
+              )}
+            </div>
+
+            <div className="eyebrow" style={{ marginBottom: 2 }}>Coût de revient complet</div>
+            <CostRow label="Prix affiché" value={`${fmtEur(l.price)} €`} />
+            <CostRow label={`Travaux estimés${plan.travauxPpm2 ? ` (${plan.travauxPpm2} €/m²)` : ''}`} value={plan.travaux ? `+ ${fmtEur(plan.travaux)} €` : '—'} accent={plan.travaux > 0} />
+            <CostRow label="Frais de notaire (7,5 %)" value={`+ ${fmtEur(plan.fraisNotaire)} €`} />
+            <CostRow label="Coût de revient" value={`${fmtEur(plan.coutComplet)} €`} total />
+
+            <div className="eyebrow" style={{ margin: '14px 0 8px' }}>Leviers de négociation</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {plan.leviers.map((lev, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, fontSize: 'var(--text-xs)', color: 'var(--text-default)', lineHeight: 1.45 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: LEVER_COLOR[lev.tone], marginTop: 5, flexShrink: 0, boxShadow: `0 0 6px ${LEVER_COLOR[lev.tone]}88` }} />
+                  {lev.text}
+                </div>
+              ))}
+            </div>
+
+            {plan.dpeAlerte && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, padding: '9px 11px', background: 'var(--danger-soft)', borderRadius: 'var(--radius-md)' }}>
+                <AlertTriangle size={15} color="var(--danger-500)" style={{ flexShrink: 0 }} />
+                <span style={{ fontSize: 11, color: 'var(--text-default)' }}>{plan.dpeAlerte}</span>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginTop: 12, padding: '10px 12px', background: 'var(--brand-soft)', borderRadius: 'var(--radius-md)' }}>
+              <Target size={15} color="var(--brand-400)" style={{ flexShrink: 0, marginTop: 1 }} />
+              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-default)', fontWeight: 500 }}>{plan.verdict}</span>
+            </div>
+          </Panel>
 
           <Panel title="Comparaison au marché" subtitle={`Médiane quartier ${l.quartier} (DVF)`} icon={<TrendingDown size={16} />}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

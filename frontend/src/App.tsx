@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   LayoutDashboard, Building2, SlidersHorizontal, Activity, Search, X,
-  RefreshCw, Gem,
+  RefreshCw, Gem, Star,
 } from 'lucide-react'
 import type { ViewId, Listing } from './types'
 import { useData, useFavorites } from './data/load'
+import CommandPalette from './components/CommandPalette'
 import Overview from './pages/Overview'
 import Opportunities from './pages/Opportunities'
 import Detail from './pages/Detail'
@@ -38,9 +39,24 @@ export default function App() {
   const [view, setView] = useState<ViewId>('overview')
   const [selected, setSelected] = useState<Listing | null>(null)
   const [query, setQuery] = useState('')
+  const [paletteOpen, setPaletteOpen] = useState(false)
+  const [favRequest, setFavRequest] = useState(0)
 
   const openDetail = (l: Listing) => { setSelected(l); setView('detail') }
   const goSearch = (q: string) => { setQuery(q); setView('opportunities') }
+  const goFavorites = () => { setView('opportunities'); setFavRequest((n) => n + 1) }
+
+  // Raccourci global ⌘K / Ctrl+K → ouvre la palette de commandes.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault()
+        setPaletteOpen((o) => !o)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   return (
     <div className="shell">
@@ -71,6 +87,13 @@ export default function App() {
               <span className="label" style={{ fontSize: 'var(--text-xs)' }}>{s.label}</span>
             </button>
           ))}
+          {count > 0 && (
+            <button className="nav-item" onClick={goFavorites} title="Mes favoris">
+              <span className="ico" style={{ width: 18, display: 'grid', placeItems: 'center' }}><Star size={15} color="var(--gold-400)" fill="var(--gold-400)" /></span>
+              <span className="label" style={{ fontSize: 'var(--text-xs)' }}>Mes favoris</span>
+              <span className="nav-badge">{count}</span>
+            </button>
+          )}
         </nav>
 
         <div className="sidebar-foot">
@@ -98,7 +121,7 @@ export default function App() {
               />
               {query
                 ? <button onClick={() => setQuery('')} aria-label="Effacer" style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-faint)', display: 'flex', padding: 0 }}><X size={14} /></button>
-                : <span className="kbd">⌘K</span>}
+                : <button className="kbd" onClick={() => setPaletteOpen(true)} title="Recherche rapide" style={{ cursor: 'pointer' }}>⌘K</button>}
             </div>
           </div>
           <div style={{ flex: 1 }} />
@@ -106,11 +129,13 @@ export default function App() {
         </header>
 
         {view === 'overview' && <Overview data={data} onOpen={openDetail} onNavigate={setView} favs={favs} toggleFav={toggle} />}
-        {view === 'opportunities' && <Opportunities data={data} query={query} onOpen={openDetail} favs={favs} toggleFav={toggle} />}
+        {view === 'opportunities' && <Opportunities data={data} query={query} onOpen={openDetail} favs={favs} toggleFav={toggle} favRequest={favRequest} />}
         {view === 'detail' && selected && <Detail key={selected.id} data={data} listing={selected} onBack={() => setView('opportunities')} onOpen={openDetail} fav={favs.has(selected.id)} toggleFav={toggle} />}
         {view === 'scoring' && <ScoringEngine data={data} />}
         {view === 'monitoring' && <Monitoring data={data} />}
       </div>
+
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} data={data} onNavigate={setView} onOpen={openDetail} />
     </div>
   )
 }
