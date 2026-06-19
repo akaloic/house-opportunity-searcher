@@ -4,6 +4,7 @@ import type { PepiteData, Listing, ViewId } from '../types'
 import { fmtEur, decotePct, economyEur, scoreLabel } from '../lib/format'
 import { useCountUp } from '../lib/useCountUp'
 import { useRevealOnScroll } from '../lib/useInView'
+import { coverFor } from '../lib/photos'
 import { Card, Panel, StatCard, Badge, Delta, Button, CountUp } from '../components/ui'
 import { ScoreGauge, ScoreRadar, ScoreBars, DrawCurve } from '../components/charts'
 import { OppCard, FeedRow } from '../components/listing'
@@ -91,9 +92,8 @@ export default function Overview({
         {top && (
           <Card hover glowGold className="feat anim d3" onClick={() => onOpen(top)}>
             <div className="feat-media">
-              {top.photoUrls[0]
-                ? <img src={top.photoUrls[0]} alt="" referrerPolicy="no-referrer" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
-                : <div className="feat-media-grid" />}
+              <div className="feat-media-grid" />
+              <img src={coverFor(top)} alt="" referrerPolicy="no-referrer" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
               <div className="feat-tag"><Badge tone="gold" dot>Pépite n°1 · {scoreLabel(top.score)}</Badge></div>
               <div className="feat-score"><ScoreGauge value={top.score} size={62} thickness={6} /></div>
             </div>

@@ -7,6 +7,7 @@ import {
 import type { PepiteData, Listing } from '../types'
 import { fmtEur, fmtAgo, decotePct, scoreColor, scoreLabel } from '../lib/format'
 import { resolvePlan, type Lever } from '../lib/negotiation'
+import { photosFor } from '../lib/photos'
 import { Card, Panel, Badge, Delta, Button, IconButton, Icon, CountUp } from '../components/ui'
 import { useRevealOnScroll } from '../lib/useInView'
 import { ScoreGauge, ScoreRadar } from '../components/charts'
@@ -77,8 +78,12 @@ export default function Detail({
   const idx = Math.max(0, all.findIndex((x) => x.id === l.id))
   const prev = all[idx - 1] || null
   const next = all[idx + 1] || null
-  const photos = l.photoUrls || []
+  const photos = photosFor(l, 7)
   const [lb, setLb] = useState(-1)
+  const isRealUrl = !!l.url && !l.url.includes('example.invalid')
+  const searchUrl =
+    'https://www.google.com/search?q=' +
+    encodeURIComponent(`appartement à vendre ${l.quartier} ${l.surface} m²`)
 
   useEffect(() => {
     if (lb < 0 || !photos.length) return
@@ -123,7 +128,7 @@ export default function Detail({
           <IconButton size="sm" label="Suivant" disabled={!next} onClick={() => next && onOpen(next)}><ChevronRight size={15} /></IconButton>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Button variant="ghost" leftIcon={<Eye size={15} />} disabled={!l.url || l.url.includes('example.invalid')} onClick={() => l.url && window.open(l.url, '_blank', 'noopener')}>Voir l'annonce</Button>
+          <Button variant="ghost" leftIcon={<Eye size={15} />} onClick={() => window.open(isRealUrl ? l.url : searchUrl, '_blank', 'noopener')}>{isRealUrl ? "Voir l'annonce" : 'Annonces similaires'}</Button>
           <Button variant={fav ? 'ghost' : 'gold'} leftIcon={<Star size={15} fill={fav ? 'var(--gold-400)' : 'none'} />} onClick={() => toggleFav(l.id)}>{fav ? 'Suivi ✓' : 'Suivre'}</Button>
         </div>
       </div>
@@ -133,7 +138,7 @@ export default function Detail({
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }} className="anim d2">
           <Card style={{ overflow: 'hidden' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 2, background: 'var(--border-subtle)' }}>
-              <div style={{ background: 'var(--surface-1)', padding: 2 }}><Photo src={photos[0]} big idx={1} total={l.photos} onClick={() => setLb(0)} /></div>
+              <div style={{ background: 'var(--surface-1)', padding: 2 }}><Photo src={photos[0]} big idx={1} total={photos.length} onClick={() => setLb(0)} /></div>
               <div style={{ position: 'relative', background: 'var(--bg-sunken)', display: 'grid', placeItems: 'center' }}>
                 <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(var(--border-subtle) 1px,transparent 1px),linear-gradient(90deg,var(--border-subtle) 1px,transparent 1px)', backgroundSize: '24px 24px', opacity: 0.4 }} />
                 <div style={{ textAlign: 'center', color: 'var(--text-faint)', zIndex: 1 }}>
@@ -144,7 +149,7 @@ export default function Detail({
               </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 6, padding: 10 }}>
-              {Array.from({ length: 6 }).map((_, i) => <Photo key={i} src={photos[i + 1]} idx={i + 2} total={l.photos} onClick={() => setLb(i + 1)} />)}
+              {Array.from({ length: 6 }).map((_, i) => <Photo key={i} src={photos[i + 1]} idx={i + 2} total={photos.length} onClick={() => setLb(i + 1)} />)}
             </div>
           </Card>
 

@@ -1,6 +1,7 @@
 import { MapPin, Train, Star, Clock } from 'lucide-react'
 import type { Listing } from '../types'
 import { fmtEur, fmtAgo, decotePct, economyEur } from '../lib/format'
+import { coverFor } from '../lib/photos'
 import { ScoreGauge } from './charts'
 import { Badge, Delta } from './ui'
 
@@ -22,9 +23,8 @@ export function OppCard({ l, onOpen, fav, onToggleFav }: {
   return (
     <div className="card card-hover opp" onClick={() => onOpen(l)}>
       <div className="opp-media">
-        {l.photoUrls[0]
-          ? <img src={l.photoUrls[0]} alt="" referrerPolicy="no-referrer" loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
-          : <MediaPlaceholder />}
+        <MediaPlaceholder />
+        <img src={coverFor(l)} alt="" referrerPolicy="no-referrer" loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
         <div style={{ position: 'absolute', top: 11, left: 11, zIndex: 2 }}>
           {l.score >= 80 ? <Badge tone="gold" dot>Pépite</Badge> : dec > 0 ? <Badge tone="brand">−{dec.toFixed(0)}%</Badge> : <Badge tone="neutral">{l.source}</Badge>}
         </div>
