@@ -1,0 +1,47 @@
+/* Toggle FR/EN — contrôle « liquid glass » avec indicateur qui glisse.
+   Accordé aux tokens du dashboard (teal --brand). */
+.lang {
+  position: relative;
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-default);
+  flex-shrink: 0;
+}
+.lang__slider {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: 38px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--brand-400), var(--brand-500));
+  box-shadow: 0 2px 10px rgba(45, 212, 167, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.lang__slider[data-lang='en'] {
+  transform: translateX(38px);
+}
+.lang__btn {
+  position: relative;
+  z-index: 1;
+  width: 38px;
+  height: 24px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+.lang__btn.is-active {
+  color: var(--text-on-brand);
+}
+.lang__btn:not(.is-active):hover {
+  color: var(--text-strong);
+}

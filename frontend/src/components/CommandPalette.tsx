@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Search, CornerDownLeft, LayoutDashboard, Building2, SlidersHorizontal, Activity } from 'lucide-react'
 import type { PepiteData, Listing, ViewId } from '../types'
 import { fmtEur, decotePct } from '../lib/format'
+import { useT } from '../i18n'
 import { ScoreGauge } from './charts'
 import { Badge } from './ui'
 
@@ -20,6 +21,7 @@ export default function CommandPalette({
   open: boolean; onClose: () => void; data: PepiteData
   onNavigate: (v: ViewId) => void; onOpen: (l: Listing) => void
 }) {
+  const t = useT()
   const [q, setQ] = useState('')
   const [active, setActive] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -27,8 +29,8 @@ export default function CommandPalette({
   useEffect(() => {
     if (open) {
       setQ(''); setActive(0)
-      const t = setTimeout(() => inputRef.current?.focus(), 20)
-      return () => clearTimeout(t)
+      const id = setTimeout(() => inputRef.current?.focus(), 20)
+      return () => clearTimeout(id)
     }
   }, [open])
 
@@ -78,29 +80,29 @@ export default function CommandPalette({
   let lastGroup = ''
   return (
     <div className="cmdk-overlay" onClick={onClose}>
-      <div className="cmdk" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Recherche rapide">
+      <div className="cmdk" onClick={(e) => e.stopPropagation()} role="dialog" aria-label={t('Recherche rapide')}>
         <div className="cmdk-input">
           <Search size={17} color="var(--text-faint)" />
-          <input ref={inputRef} value={q} onChange={(e) => { setQ(e.target.value); setActive(0) }} placeholder="Aller à une vue, chercher un bien…" />
+          <input ref={inputRef} value={q} onChange={(e) => { setQ(e.target.value); setActive(0) }} placeholder={t('Aller à une vue, chercher un bien…')} />
           <span className="kbd">esc</span>
         </div>
         <div className="cmdk-list">
-          {items.length === 0 && <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--text-faint)', fontSize: 'var(--text-sm)' }}>Aucun résultat.</div>}
+          {items.length === 0 && <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--text-faint)', fontSize: 'var(--text-sm)' }}>{t('Aucun résultat.')}</div>}
           {items.map((it, i) => {
             const header = it.group !== lastGroup ? it.group : null
             lastGroup = it.group
             const dec = it.key.startsWith('l-') ? decotePct(data.LISTINGS.find((l) => `l-${l.id}` === it.key)!) : 0
             return (
               <div key={it.key}>
-                {header && <div className="cmdk-group">{header}</div>}
+                {header && <div className="cmdk-group">{t(header)}</div>}
                 <button
                   className={`cmdk-item${i === active ? ' active' : ''}`}
                   onMouseEnter={() => setActive(i)} onClick={() => it.run()}
                 >
                   <span className="cmdk-ico">{it.icon}</span>
                   <span style={{ flex: 1, minWidth: 0 }}>
-                    <span className="cmdk-label">{it.label}</span>
-                    {it.sub && <span className="cmdk-sub">{it.sub}</span>}
+                    <span className="cmdk-label">{t(it.label)}</span>
+                    {it.sub && <span className="cmdk-sub">{t(it.sub)}</span>}
                   </span>
                   {dec > 0 && <Badge tone="brand">−{dec.toFixed(0)} %</Badge>}
                   {i === active && <CornerDownLeft size={14} color="var(--text-faint)" />}
@@ -110,9 +112,9 @@ export default function CommandPalette({
           })}
         </div>
         <div className="cmdk-foot">
-          <span><span className="kbd">↑</span><span className="kbd">↓</span> naviguer</span>
-          <span><span className="kbd">↵</span> ouvrir</span>
-          <span><span className="kbd">esc</span> fermer</span>
+          <span><span className="kbd">↑</span><span className="kbd">↓</span> {t('naviguer')}</span>
+          <span><span className="kbd">↵</span> {t('ouvrir')}</span>
+          <span><span className="kbd">esc</span> {t('fermer')}</span>
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import type { PepiteData, Listing } from '../types'
 import { fmtEur } from '../lib/format'
 import { Panel, Badge, Button, RangeSlider, Switch, Icon } from '../components/ui'
 import { useRevealOnScroll } from '../lib/useInView'
+import { useT } from '../i18n'
 import { ScoreGauge } from '../components/charts'
 
 const DPE_RANK: Record<string, number> = { A: 0, B: 1, C: 2, D: 3, E: 4, F: 5, G: 6 }
@@ -14,6 +15,7 @@ function loadCfg(): any {
 }
 
 export default function ScoringEngine({ data }: { data: PepiteData }) {
+  const t = useT()
   const { CRITERIA, WEIGHTS, LISTINGS } = data
   const revealRef = useRevealOnScroll<HTMLDivElement>()
   const PRESETS: Record<string, Record<string, number>> = {
@@ -64,20 +66,20 @@ export default function ScoringEngine({ data }: { data: PepiteData }) {
   return (
     <div className="page" ref={revealRef}>
       <div className="section-head anim d1" style={{ marginBottom: 18 }}>
-        <div className="section-title">Moteur de scoring</div>
-        <Badge tone="neutral">7 critères d'expert · pondérables</Badge>
+        <div className="section-title">{t('Moteur de scoring')}</div>
+        <Badge tone="neutral">{t("7 critères d'expert · pondérables")}</Badge>
       </div>
 
       <div className="scoring-grid">
         {/* LEFT */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }} className="anim d2">
           <Panel
-            title="Pondération du scoring" subtitle="Ajustez les poids : l'aperçu se recalcule en direct"
+            title={t('Pondération du scoring')} subtitle={t("Ajustez les poids : l'aperçu se recalcule en direct")}
             icon={<SlidersHorizontal size={16} />}
             actions={
               <div style={{ display: 'flex', gap: 6 }}>
                 {Object.keys(PRESETS).map((p) => (
-                  <button key={p} onClick={() => applyPreset(p)} className="btn btn-sm btn-ghost" style={{ fontSize: 11, height: 26 }}>{p}</button>
+                  <button key={p} onClick={() => applyPreset(p)} className="btn btn-sm btn-ghost" style={{ fontSize: 11, height: 26 }}>{t(p)}</button>
                 ))}
               </div>
             }
@@ -86,23 +88,23 @@ export default function ScoringEngine({ data }: { data: PepiteData }) {
               {CRITERIA.map((c) => (
                 <div key={c.key} style={{ display: 'grid', gridTemplateColumns: '22px 1fr', gap: 10, alignItems: 'start' }}>
                   <Icon name={c.icon} size={16} color={c.accent} style={{ marginTop: 2 }} />
-                  <RangeSlider label={c.label} value={weights[c.key] ?? 0} min={0} max={50} accent={c.accent} onChange={(v) => setW(c.key, v)} />
+                  <RangeSlider label={t(c.label)} value={weights[c.key] ?? 0} min={0} max={50} accent={c.accent} onChange={(v) => setW(c.key, v)} />
                 </div>
               ))}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, paddingTop: 12, borderTop: '1px solid var(--border-subtle)' }}>
-              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>Somme des poids · normalisée à 100 %</span>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--text-strong)' }}>{totalW} pts</span>
+              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{t('Somme des poids · normalisée à 100 %')}</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--text-strong)' }}>{totalW} {t('pts')}</span>
             </div>
           </Panel>
 
-          <Panel title="Filtres stricts" subtitle="Exclusion ferme : appliqués avant le scoring" icon={<Filter size={16} />}>
+          <Panel title={t('Filtres stricts')} subtitle={t('Exclusion ferme : appliqués avant le scoring')} icon={<Filter size={16} />}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
-              <RangeSlider label="Prix maximum" value={priceMax} min={150} max={1200} step={10} accent="var(--gold-500)" suffix=" k€" onChange={touch(setPriceMax)} />
-              <RangeSlider label="Surface minimum" value={surfMin} min={10} max={120} accent="var(--viz-2)" suffix=" m²" onChange={touch(setSurfMin)} />
+              <RangeSlider label={t('Prix maximum')} value={priceMax} min={150} max={1200} step={10} accent="var(--gold-500)" suffix=" k€" onChange={touch(setPriceMax)} />
+              <RangeSlider label={t('Surface minimum')} value={surfMin} min={10} max={120} accent="var(--viz-2)" suffix=" m²" onChange={touch(setSurfMin)} />
             </div>
             <div style={{ marginTop: 16 }}>
-              <div className="eyebrow" style={{ marginBottom: 9 }}>Zones géographiques</div>
+              <div className="eyebrow" style={{ marginBottom: 9 }}>{t('Zones géographiques')}</div>
               <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
                 {Object.keys(zones).map((z) => (
                   <button key={z} onClick={() => { setZones((s) => ({ ...s, [z]: !s[z] })); setDirty(true) }}
@@ -112,14 +114,14 @@ export default function ScoringEngine({ data }: { data: PepiteData }) {
                     {zones[z] && <Check size={12} />}{z}
                   </button>
                 ))}
-                <button onClick={() => { const z = (window.prompt('Code postal à ajouter (ex : 92110)') || '').trim(); if (z) { setZones((s) => ({ ...s, [z]: true })); setDirty(true) } }}
-                  style={{ height: 28, padding: '0 11px', borderRadius: 'var(--radius-pill)', border: '1px dashed var(--border-strong)', background: 'transparent', color: 'var(--text-faint)', fontSize: 'var(--text-xs)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}><Plus size={12} />Zone</button>
+                <button onClick={() => { const z = (window.prompt(t('Code postal à ajouter (ex : 92110)')) || '').trim(); if (z) { setZones((s) => ({ ...s, [z]: true })); setDirty(true) } }}
+                  style={{ height: 28, padding: '0 11px', borderRadius: 'var(--radius-pill)', border: '1px dashed var(--border-strong)', background: 'transparent', color: 'var(--text-faint)', fontSize: 'var(--text-xs)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}><Plus size={12} />{t('Zone')}</button>
               </div>
             </div>
             <div style={{ marginTop: 16, maxWidth: 200 }}>
-              <div className="eyebrow" style={{ marginBottom: 7 }}>DPE maximum</div>
+              <div className="eyebrow" style={{ marginBottom: 7 }}>{t('DPE maximum')}</div>
               <select className="field" value={dpe} onChange={(e) => { setDpe(e.target.value); setDirty(true) }}>
-                {['B', 'C', 'D', 'E', 'Tous'].map((d) => <option key={d} value={d}>{d}</option>)}
+                {['B', 'C', 'D', 'E', 'Tous'].map((d) => <option key={d} value={d}>{d === 'Tous' ? t('Tous') : d}</option>)}
               </select>
             </div>
           </Panel>
@@ -127,10 +129,10 @@ export default function ScoringEngine({ data }: { data: PepiteData }) {
 
         {/* RIGHT */}
         <div className="anim d3 scoring-aside" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <Panel title="Aperçu temps réel" subtitle="Re-classement instantané" icon={<Zap size={16} />}
-            actions={<Badge tone={matches > 0 ? 'gold' : 'neutral'} dot={matches > 0}>{matches} alertes</Badge>}>
+          <Panel title={t('Aperçu temps réel')} subtitle={t('Re-classement instantané')} icon={<Zap size={16} />}
+            actions={<Badge tone={matches > 0 ? 'gold' : 'neutral'} dot={matches > 0}>{matches} {t('alertes')}</Badge>}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {preview.length === 0 && <div style={{ padding: '18px 4px', textAlign: 'center', color: 'var(--text-faint)', fontSize: 'var(--text-xs)' }}>Aucun bien ne passe les filtres stricts.</div>}
+              {preview.length === 0 && <div style={{ padding: '18px 4px', textAlign: 'center', color: 'var(--text-faint)', fontSize: 'var(--text-xs)' }}>{t('Aucun bien ne passe les filtres stricts.')}</div>}
               {preview.map((l, i) => {
                 const diff = l.preview - l.score
                 return (
@@ -148,23 +150,23 @@ export default function ScoringEngine({ data }: { data: PepiteData }) {
             </div>
           </Panel>
 
-          <Panel title="Alertes" icon={<Bell size={16} />}>
+          <Panel title={t('Alertes')} icon={<Bell size={16} />}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <RangeSlider label="Seuil d'alerte (score min.)" value={threshold} min={40} max={95} accent="var(--gold-500)" onChange={touch(setThreshold)} />
+              <RangeSlider label={t("Seuil d'alerte (score min.)")} value={threshold} min={40} max={95} accent="var(--gold-500)" onChange={touch(setThreshold)} />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 'var(--text-sm)', color: 'var(--text-default)' }}><Mail size={15} color="var(--text-muted)" />Alerte e-mail</span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 'var(--text-sm)', color: 'var(--text-default)' }}><Mail size={15} color="var(--text-muted)" />{t('Alerte e-mail')}</span>
                 <Switch checked={alertEmail} onChange={touch(setAlertEmail)} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 'var(--text-sm)', color: 'var(--text-default)' }}><Zap size={15} color="var(--text-muted)" />Notification instantanée</span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 'var(--text-sm)', color: 'var(--text-default)' }}><Zap size={15} color="var(--text-muted)" />{t('Notification instantanée')}</span>
                 <Switch checked={instant} onChange={touch(setInstant)} />
               </div>
             </div>
           </Panel>
 
           <div style={{ display: 'flex', gap: 8 }}>
-            <Button variant="ghost" onClick={reset}>Réinitialiser</Button>
-            <Button variant="brand" disabled={!dirty} onClick={save} leftIcon={<Check size={15} />}>{savedTick ? 'Enregistré ✓' : 'Enregistrer'}</Button>
+            <Button variant="ghost" onClick={reset}>{t('Réinitialiser')}</Button>
+            <Button variant="brand" disabled={!dirty} onClick={save} leftIcon={<Check size={15} />}>{savedTick ? t('Enregistré ✓') : t('Enregistrer')}</Button>
           </div>
         </div>
       </div>

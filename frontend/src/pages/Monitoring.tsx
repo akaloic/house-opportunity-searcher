@@ -3,6 +3,7 @@ import { Layers, TrendingUp, Wifi, Server, List, Shield, Activity, Check, AlertT
 import type { PepiteData, SourceStat, LogEntry } from '../types'
 import { Panel, StatCard, Badge, IconButton } from '../components/ui'
 import { useRevealOnScroll } from '../lib/useInView'
+import { useT } from '../i18n'
 import { Sparkline } from '../components/charts'
 
 const THROUGHPUT = [38, 42, 31, 55, 61, 48, 72, 80, 66, 90, 84, 102, 95, 78, 88, 110, 124, 98, 86, 70, 64, 58, 49, 53]
@@ -20,6 +21,7 @@ function StatusDot({ status, label }: { status: string; label?: string }) {
 }
 
 function SourceRow({ s }: { s: SourceStat }) {
+  const t = useT()
   const rate = s.scanned > 0 ? Math.round((1 - s.blocked / (s.scanned + s.blocked)) * 100) : 0
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '150px 80px 70px 90px 1fr', alignItems: 'center', gap: 12, padding: '11px 14px', borderBottom: '1px solid var(--border-subtle)', fontSize: 'var(--text-xs)' }}>
@@ -29,7 +31,7 @@ function SourceRow({ s }: { s: SourceStat }) {
       </div>
       <span className="mono" style={{ color: 'var(--text-default)' }}>{s.scanned.toLocaleString('fr-FR')}</span>
       <span className="mono" style={{ color: s.found > 0 ? 'var(--gold-400)' : 'var(--text-faint)', fontWeight: 600 }}>{s.found}</span>
-      <span className="mono" style={{ color: s.blocked > 20 ? 'var(--danger-500)' : 'var(--text-muted)' }}>{s.blocked} bloq.</span>
+      <span className="mono" style={{ color: s.blocked > 20 ? 'var(--danger-500)' : 'var(--text-muted)' }}>{s.blocked} {t('bloq.')}</span>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{ flex: 1, height: 5, borderRadius: 999, background: 'var(--surface-4)', overflow: 'hidden', maxWidth: 110 }}>
           <div style={{ width: `${rate}%`, height: '100%', background: rate > 80 ? 'var(--success-500)' : rate > 50 ? 'var(--warning-500)' : 'var(--danger-500)', borderRadius: 999 }} />
@@ -55,6 +57,7 @@ function LogRow({ g }: { g: LogEntry }) {
 }
 
 export default function Monitoring({ data }: { data: PepiteData }) {
+  const t = useT()
   const [paused, setPaused] = useState(false)
   const revealRef = useRevealOnScroll<HTMLDivElement>()
   const peak = THROUGHPUT.indexOf(Math.max(...THROUGHPUT))
@@ -72,28 +75,28 @@ export default function Monitoring({ data }: { data: PepiteData }) {
   return (
     <div className="page" ref={revealRef}>
       <div className="section-head anim d1" style={{ marginBottom: 18 }}>
-        <div className="section-title">Monitoring technique</div>
-        <StatusDot status="running" label="Pipeline actif" />
+        <div className="section-title">{t('Monitoring technique')}</div>
+        <StatusDot status="running" label={t('Pipeline actif')} />
       </div>
 
       <div className="kpi-grid anim d2" style={{ gridTemplateColumns: 'repeat(5,1fr)' }}>
-        <StatCard label="Uptime · 30j" value="99,4" unit="%" icon={<Shield size={15} />} foot={<span style={{ color: 'var(--success-500)' }}>+0,2 %</span>} />
-        <StatCard label="Requêtes / min" value="124" icon={<Activity size={15} />} foot={<div style={{ width: 70 }}><Sparkline data={THROUGHPUT.slice(-10)} height={22} /></div>} />
-        <StatCard label="Taux de succès" value="91,2" unit="%" icon={<Check size={15} />} foot={<span style={{ color: 'var(--warning-500)' }}>−1,4 %</span>} />
-        <StatCard label="Requêtes bloquées" value="158" icon={<AlertTriangle size={15} />} accent="var(--danger-500)" foot={<span style={{ color: 'var(--danger-500)' }}>+62</span>} />
-        <StatCard label="Proxies sains" value="42" unit="/ 48" icon={<Server size={15} />} foot={<span style={{ color: 'var(--text-faint)' }}>−3</span>} />
+        <StatCard label={t('Uptime · 30j')} value="99,4" unit="%" icon={<Shield size={15} />} foot={<span style={{ color: 'var(--success-500)' }}>+0,2 %</span>} />
+        <StatCard label={t('Requêtes / min')} value="124" icon={<Activity size={15} />} foot={<div style={{ width: 70 }}><Sparkline data={THROUGHPUT.slice(-10)} height={22} /></div>} />
+        <StatCard label={t('Taux de succès')} value="91,2" unit="%" icon={<Check size={15} />} foot={<span style={{ color: 'var(--warning-500)' }}>−1,4 %</span>} />
+        <StatCard label={t('Requêtes bloquées')} value="158" icon={<AlertTriangle size={15} />} accent="var(--danger-500)" foot={<span style={{ color: 'var(--danger-500)' }}>+62</span>} />
+        <StatCard label={t('Proxies sains')} value="42" unit="/ 48" icon={<Server size={15} />} foot={<span style={{ color: 'var(--text-faint)' }}>−3</span>} />
       </div>
 
       <div className="split section-gap anim d3">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <Panel title="Sources de scraping" icon={<Layers size={16} />} noPadding>
+          <Panel title={t('Sources de scraping')} icon={<Layers size={16} />} noPadding>
             <div style={{ display: 'grid', gridTemplateColumns: '150px 80px 70px 90px 1fr', gap: 12, padding: '9px 14px', borderBottom: '1px solid var(--border-default)' }}>
-              {['Source', 'Scannées', 'Pépites', 'Bloquées', 'Taux · proxy'].map((h) => <span key={h} className="eyebrow" style={{ fontSize: 10 }}>{h}</span>)}
+              {['Source', 'Scannées', 'Pépites', 'Bloquées', 'Taux · proxy'].map((h) => <span key={h} className="eyebrow" style={{ fontSize: 10 }}>{t(h)}</span>)}
             </div>
             {data.SOURCES.map((s) => <SourceRow key={s.name} s={s} />)}
           </Panel>
 
-          <Panel title="Débit de scraping" subtitle="Requêtes / minute · 24 dernières heures" icon={<TrendingUp size={16} />}>
+          <Panel title={t('Débit de scraping')} subtitle={t('Requêtes / minute · 24 dernières heures')} icon={<TrendingUp size={16} />}>
             <div style={{ height: 120, display: 'flex', alignItems: 'flex-end', gap: 3 }}>
               {THROUGHPUT.map((v, i) => {
                 const max = Math.max(...THROUGHPUT)
@@ -111,7 +114,7 @@ export default function Monitoring({ data }: { data: PepiteData }) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <Panel title="Pool de proxies" icon={<Wifi size={16} />}>
+          <Panel title={t('Pool de proxies')} icon={<Wifi size={16} />}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[{ k: 'FR · Residential', v: 18, t: 20, c: 'var(--success-500)' }, { k: 'FR · Mobile', v: 14, t: 16, c: 'var(--success-500)' }, { k: 'FR · Datacenter', v: 10, t: 12, c: 'var(--warning-500)' }].map((p, i) => (
                 <div key={i}>
@@ -127,7 +130,7 @@ export default function Monitoring({ data }: { data: PepiteData }) {
             </div>
           </Panel>
 
-          <Panel title="Santé système" icon={<Server size={16} />}>
+          <Panel title={t('Santé système')} icon={<Server size={16} />}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
               {[['Queue Redis', 'online', '1 240 jobs'], ['Worker pool', 'online', '8 / 8 actifs'], ['Géocodeur IGN', 'online', '84 % cache'], ['Solver captcha', 'warning', 'file 2.1s'], ['SMTP alertes', 'online', '3 envoyés']].map((r, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -141,12 +144,12 @@ export default function Monitoring({ data }: { data: PepiteData }) {
       </div>
 
       <div className="section-gap anim d4">
-        <Panel title="Console de logs" subtitle="Flux agrégé · toutes sources" icon={<List size={16} />} noPadding
+        <Panel title={t('Console de logs')} subtitle={t('Flux agrégé · toutes sources')} icon={<List size={16} />} noPadding
           actions={
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <StatusDot status={paused ? 'idle' : 'running'} label={paused ? 'En pause' : 'Live'} />
-              <IconButton size="sm" label={paused ? 'Reprendre' : 'Pause'} onClick={() => setPaused((p) => !p)}>{paused ? <Play size={14} /> : <Pause size={14} />}</IconButton>
-              <IconButton size="sm" label="Exporter" onClick={exportLogs}><Download size={14} /></IconButton>
+              <StatusDot status={paused ? 'idle' : 'running'} label={paused ? t('En pause') : 'Live'} />
+              <IconButton size="sm" label={paused ? t('Reprendre') : t('Pause')} onClick={() => setPaused((p) => !p)}>{paused ? <Play size={14} /> : <Pause size={14} />}</IconButton>
+              <IconButton size="sm" label={t('Exporter')} onClick={exportLogs}><Download size={14} /></IconButton>
             </div>
           }>
           <div style={{ background: 'var(--bg-sunken)', maxHeight: 240, overflow: 'auto', padding: '8px 0' }}>

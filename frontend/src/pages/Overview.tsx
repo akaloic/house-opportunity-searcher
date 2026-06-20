@@ -5,6 +5,7 @@ import { fmtEur, decotePct, economyEur, scoreLabel } from '../lib/format'
 import { useCountUp } from '../lib/useCountUp'
 import { useRevealOnScroll } from '../lib/useInView'
 import { coverFor } from '../lib/photos'
+import { useT } from '../i18n'
 import { Card, Panel, StatCard, Badge, Delta, Button, CountUp } from '../components/ui'
 import { ScoreGauge, ScoreRadar, ScoreBars, DrawCurve } from '../components/charts'
 import { OppCard, FeedRow } from '../components/listing'
@@ -24,6 +25,7 @@ export default function Overview({
   data: PepiteData; onOpen: (l: Listing) => void; onNavigate: (v: ViewId) => void
   favs: Set<string>; toggleFav: (id: string) => void
 }) {
+  const t = useT()
   const ranked = [...data.LISTINGS].sort((a, b) => b.score - a.score)
   const top = ranked[0]
   const pepites = ranked.filter((l) => l.score >= 80)
@@ -34,7 +36,7 @@ export default function Overview({
 
   // Profil de scoring moyen (radar) — moyenne de chaque critère sur tous les biens.
   const avgAxes = data.CRITERIA.map((c) => ({
-    short: c.short,
+    short: t(c.short),
     value: Math.round(ranked.reduce((s, l) => s + (l.crit[c.key] ?? 0), 0) / Math.max(1, ranked.length)),
   }))
 
@@ -55,36 +57,35 @@ export default function Overview({
       {/* ---------------- HERO ---------------- */}
       <section className="hero">
         <div className="hero-left anim d1">
-          <span className="hero-eyebrow"><span className="pulse" />Veille active · Île-de-France · axe La Défense</span>
+          <span className="hero-eyebrow"><span className="pulse" />{t('Veille active · Île-de-France · axe La Défense')}</span>
           <h1 className="hero-title">
-            Détectez la <span className="grad">pépite immobilière</span><br />avant tout le monde.
+            {t('Détectez la ')}<span className="grad">{t('pépite immobilière')}</span><br />{t('avant tout le monde.')}
           </h1>
           <p className="hero-sub">
-            Chaque annonce est scorée sur 7 critères d'expert (décote DVF, futures gares du Grand Paris,
-            signaux vendeur) pour révéler les biens sous-évalués.
+            {t("Chaque annonce est scorée sur 7 critères d'expert (décote DVF, futures gares du Grand Paris, signaux vendeur) pour révéler les biens sous-évalués.")}
           </p>
 
           <div className="hero-bignum">
             <span className="cur">≈ {fmtEur(animEco)} €</span>
           </div>
-          <div className="hero-bignum-label">d'économie potentielle vs marché DVF · {pepites.length} pépites détectées</div>
+          <div className="hero-bignum-label">{t("d'économie potentielle vs marché DVF")} · {pepites.length} {t('pépites détectées')}</div>
 
           <div className="hero-cta">
             <Button variant="brand" leftIcon={<ArrowRight size={16} />} onClick={() => onNavigate('opportunities')}>
-              Explorer les opportunités
+              {t('Explorer les opportunités')}
             </Button>
             {top && (
               <Button variant="ghost" leftIcon={<Sparkles size={16} />} onClick={() => onOpen(top)}>
-                Voir la pépite n°1
+                {t('Voir la pépite n°1')}
               </Button>
             )}
           </div>
 
           <div className="hero-chips">
-            <div><div className="hero-chip-v"><CountUp end={pepites.length} /></div><div className="hero-chip-l">Pépites ≥ 80</div></div>
-            <div><div className="hero-chip-v"><CountUp end={medDecote} prefix="−" suffix=" %" /></div><div className="hero-chip-l">Décote médiane</div></div>
-            <div><div className="hero-chip-v"><CountUp end={ranked.length} /></div><div className="hero-chip-l">Biens scannés</div></div>
-            <div><div className="hero-chip-v"><CountUp end={top?.score ?? 0} /></div><div className="hero-chip-l">Meilleur score</div></div>
+            <div><div className="hero-chip-v"><CountUp end={pepites.length} /></div><div className="hero-chip-l">{t('Pépites ≥ 80')}</div></div>
+            <div><div className="hero-chip-v"><CountUp end={medDecote} prefix="−" suffix=" %" /></div><div className="hero-chip-l">{t('Décote médiane')}</div></div>
+            <div><div className="hero-chip-v"><CountUp end={ranked.length} /></div><div className="hero-chip-l">{t('Biens scannés')}</div></div>
+            <div><div className="hero-chip-v"><CountUp end={top?.score ?? 0} /></div><div className="hero-chip-l">{t('Meilleur score')}</div></div>
           </div>
         </div>
 
@@ -94,7 +95,7 @@ export default function Overview({
             <div className="feat-media">
               <div className="feat-media-grid" />
               <img src={coverFor(top)} alt="" referrerPolicy="no-referrer" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
-              <div className="feat-tag"><Badge tone="gold" dot>Pépite n°1 · {scoreLabel(top.score)}</Badge></div>
+              <div className="feat-tag"><Badge tone="gold" dot>{t('Pépite n°1')} · {t(scoreLabel(top.score))}</Badge></div>
               <div className="feat-score"><ScoreGauge value={top.score} size={62} thickness={6} /></div>
             </div>
             <div className="feat-body">
@@ -114,14 +115,14 @@ export default function Overview({
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'flex-end' }}>
-                  {top.tags.slice(0, 2).map((t) => <Badge key={t} tone="neutral">{t}</Badge>)}
+                  {top.tags.slice(0, 2).map((tag) => <Badge key={tag} tone="neutral">{tag}</Badge>)}
                 </div>
               </div>
               {topEco > 0 && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '9px 11px', background: 'var(--success-soft)', borderRadius: 'var(--radius-md)' }}>
                   <Zap size={15} color="var(--success-500)" />
                   <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-default)' }}>
-                    <b style={{ color: 'var(--success-500)' }}>{fmtEur(topEco)} €</b> sous le marché estimé · levier de négo
+                    <b style={{ color: 'var(--success-500)' }}>{fmtEur(topEco)} €</b> {t('sous le marché estimé · levier de négo')}
                   </span>
                 </div>
               )}
@@ -134,7 +135,7 @@ export default function Overview({
       {cumEconomy.length >= 2 && (
         <div className="anim d3" style={{ marginBottom: 22 }}>
           <Panel
-            title="Économie cumulée détectée" subtitle="Somme des décotes vs marché DVF, par ordre de détection"
+            title={t('Économie cumulée détectée')} subtitle={t('Somme des décotes vs marché DVF, par ordre de détection')}
             icon={<TrendingUp size={16} />}
             actions={<span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'var(--text-xl)', color: 'var(--brand-400)' }}>≈ <CountUp end={totalEconomy} suffix=" €" /></span>}
           >
@@ -145,17 +146,17 @@ export default function Overview({
 
       {/* ---------------- KPI ---------------- */}
       <div className="kpi-grid anim d4">
-        <StatCard label="Pépites détectées" value={<CountUp end={pepites.length} />} unit={`/ ${ranked.length}`} icon={<Zap size={15} />} accent="var(--gold-400)" foot={<span style={{ color: 'var(--text-faint)' }}>score ≥ 80 / 100</span>} />
-        <StatCard label="Décote médiane" value={<CountUp end={medDecote} prefix="−" />} unit="%" icon={<Euro size={15} />} foot={<span style={{ color: 'var(--success-500)' }}>vs médiane DVF quartier</span>} />
-        <StatCard label="Médiane marché /m²" value={<CountUp end={medMarket} />} unit="€" icon={<Layers size={15} />} foot={<span style={{ color: 'var(--text-faint)' }}>micro-quartier, &lt; 24 mois</span>} />
-        <StatCard label="Meilleur score" value={<CountUp end={top?.score ?? 0} />} unit="/100" icon={<Gauge size={15} />} foot={top ? <span style={{ color: 'var(--text-faint)' }}>{top.quartier}</span> : null} />
+        <StatCard label={t('Pépites détectées')} value={<CountUp end={pepites.length} />} unit={`/ ${ranked.length}`} icon={<Zap size={15} />} accent="var(--gold-400)" foot={<span style={{ color: 'var(--text-faint)' }}>{t('score ≥ 80 / 100')}</span>} />
+        <StatCard label={t('Décote médiane')} value={<CountUp end={medDecote} prefix="−" />} unit="%" icon={<Euro size={15} />} foot={<span style={{ color: 'var(--success-500)' }}>{t('vs médiane DVF quartier')}</span>} />
+        <StatCard label={t('Médiane marché /m²')} value={<CountUp end={medMarket} />} unit="€" icon={<Layers size={15} />} foot={<span style={{ color: 'var(--text-faint)' }}>{t('micro-quartier, < 24 mois')}</span>} />
+        <StatCard label={t('Meilleur score')} value={<CountUp end={top?.score ?? 0} />} unit="/100" icon={<Gauge size={15} />} foot={top ? <span style={{ color: 'var(--text-faint)' }}>{top.quartier}</span> : null} />
       </div>
 
       {/* ---------------- Opportunités du moment ---------------- */}
       <div className="section-gap anim d5">
         <div className="section-head">
-          <div className="section-title">Opportunités du moment</div>
-          <Button variant="ghost" size="sm" leftIcon={<Building2 size={15} />} onClick={() => onNavigate('opportunities')}>Tout voir</Button>
+          <div className="section-title">{t('Opportunités du moment')}</div>
+          <Button variant="ghost" size="sm" leftIcon={<Building2 size={15} />} onClick={() => onNavigate('opportunities')}>{t('Tout voir')}</Button>
         </div>
         <div className="opp-grid">
           {ranked.slice(0, 4).map((l) => (
@@ -166,14 +167,14 @@ export default function Overview({
 
       {/* ---------------- Carte + analyses ---------------- */}
       <div className="split section-gap anim d6">
-        <Panel title="Cartographie des opportunités" subtitle="Pins réels colorés par score · OSM + DVF" icon={<MapIcon size={16} />} noPadding bodyStyle={{ padding: 10 }}>
-          <Suspense fallback={<div style={{ height: 480, display: 'grid', placeItems: 'center', color: 'var(--text-faint)' }}>Chargement de la carte…</div>}>
+        <Panel title={t('Cartographie des opportunités')} subtitle={t('Pins réels colorés par score · OSM + DVF')} icon={<MapIcon size={16} />} noPadding bodyStyle={{ padding: 10 }}>
+          <Suspense fallback={<div style={{ height: 480, display: 'grid', placeItems: 'center', color: 'var(--text-faint)' }}>{t('Chargement de la carte…')}</div>}>
             <MapPanel listings={ranked} selectedId={top?.id} onSelect={onOpen} height={480} />
           </Suspense>
         </Panel>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <Panel title="Top pépites" subtitle="Clic → fiche détail" icon={<Sparkles size={16} />} noPadding>
+          <Panel title={t('Top pépites')} subtitle={t('Clic → fiche détail')} icon={<Sparkles size={16} />} noPadding>
             <div style={{ maxHeight: 270, overflow: 'auto' }}>
               {ranked.slice(0, 5).map((l) => (
                 <FeedRow key={l.id} l={l} onOpen={onOpen} fav={favs.has(l.id)} />
@@ -181,11 +182,11 @@ export default function Overview({
             </div>
           </Panel>
 
-          <Panel title="Répartition des scores" subtitle="Distribution des biens scannés" icon={<BarChart3 size={16} />}>
+          <Panel title={t('Répartition des scores')} subtitle={t('Distribution des biens scannés')} icon={<BarChart3 size={16} />}>
             <ScoreBars values={ranked.map((l) => l.score)} />
           </Panel>
 
-          <Panel title="Profil de scoring moyen" subtitle="Forces du portefeuille détecté" icon={<RadarIcon size={16} />}>
+          <Panel title={t('Profil de scoring moyen')} subtitle={t('Forces du portefeuille détecté')} icon={<RadarIcon size={16} />}>
             <ScoreRadar axes={avgAxes} size={200} />
           </Panel>
         </div>

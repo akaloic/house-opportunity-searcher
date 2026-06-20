@@ -2,6 +2,7 @@ import { MapPin, Train, Star, Clock } from 'lucide-react'
 import type { Listing } from '../types'
 import { fmtEur, fmtAgo, decotePct, economyEur } from '../lib/format'
 import { coverFor } from '../lib/photos'
+import { useT } from '../i18n'
 import { ScoreGauge } from './charts'
 import { Badge, Delta } from './ui'
 
@@ -18,6 +19,7 @@ function MediaPlaceholder() {
 export function OppCard({ l, onOpen, fav, onToggleFav }: {
   l: Listing; onOpen: (l: Listing) => void; fav: boolean; onToggleFav: (id: string) => void
 }) {
+  const t = useT()
   const dec = decotePct(l)
   const eco = economyEur(l)
   return (
@@ -26,11 +28,11 @@ export function OppCard({ l, onOpen, fav, onToggleFav }: {
         <MediaPlaceholder />
         <img src={coverFor(l)} alt="" referrerPolicy="no-referrer" loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
         <div style={{ position: 'absolute', top: 11, left: 11, zIndex: 2 }}>
-          {l.score >= 80 ? <Badge tone="gold" dot>Pépite</Badge> : dec > 0 ? <Badge tone="brand">−{dec.toFixed(0)}%</Badge> : <Badge tone="neutral">{l.source}</Badge>}
+          {l.score >= 80 ? <Badge tone="gold" dot>{t('Pépite')}</Badge> : dec > 0 ? <Badge tone="brand">−{dec.toFixed(0)}%</Badge> : <Badge tone="neutral">{l.source}</Badge>}
         </div>
         <button
           onClick={(e) => { e.stopPropagation(); onToggleFav(l.id) }}
-          aria-label="Suivre" title={fav ? 'Suivi' : 'Suivre'}
+          aria-label={t('Suivre')} title={fav ? t('Suivi') : t('Suivre')}
           style={{ position: 'absolute', top: 9, right: 9, zIndex: 2, width: 30, height: 30, borderRadius: 9, border: '1px solid var(--border-default)', background: 'rgba(6,7,14,0.6)', backdropFilter: 'blur(8px)', cursor: 'pointer', display: 'grid', placeItems: 'center' }}
         >
           <Star size={15} color={fav ? 'var(--gold-400)' : 'var(--text-muted)'} fill={fav ? 'var(--gold-400)' : 'none'} />
@@ -55,7 +57,7 @@ export function OppCard({ l, onOpen, fav, onToggleFav }: {
         </div>
         {eco > 0 && (
           <div style={{ fontSize: 11, color: 'var(--success-500)', display: 'flex', alignItems: 'center', gap: 5 }}>
-            <Clock size={11} />≈ {fmtEur(eco)} € sous le marché estimé
+            <Clock size={11} />≈ {fmtEur(eco)} € {t('sous le marché estimé')}
           </div>
         )}
       </div>
@@ -65,6 +67,7 @@ export function OppCard({ l, onOpen, fav, onToggleFav }: {
 
 /* ---------------- Ligne de flux (liste compacte) ---------------- */
 export function FeedRow({ l, active, onOpen, fav }: { l: Listing; active?: boolean; onOpen: (l: Listing) => void; fav?: boolean }) {
+  const t = useT()
   const dec = decotePct(l)
   return (
     <button className={`feed-row${active ? ' active' : ''}`} onClick={() => onOpen(l)}>
@@ -72,7 +75,7 @@ export function FeedRow({ l, active, onOpen, fav }: { l: Listing; active?: boole
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 3 }}>
           <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-strong)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l.title}</span>
-          {l.score >= 80 && <Badge tone="gold" dot>Pépite</Badge>}
+          {l.score >= 80 && <Badge tone="gold" dot>{t('Pépite')}</Badge>}
           {fav && <Star size={12} color="var(--gold-400)" fill="var(--gold-400)" />}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
