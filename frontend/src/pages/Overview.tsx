@@ -60,8 +60,8 @@ export default function Overview({
             Détectez la <span className="grad">pépite immobilière</span><br />avant tout le monde.
           </h1>
           <p className="hero-sub">
-            Chaque annonce est scorée sur 7 critères d'expert — décote DVF, futures gares du Grand Paris,
-            signaux vendeur — pour révéler les biens sous-évalués.
+            Chaque annonce est scorée sur 7 critères d'expert (décote DVF, futures gares du Grand Paris,
+            signaux vendeur) pour révéler les biens sous-évalués.
           </p>
 
           <div className="hero-bignum">

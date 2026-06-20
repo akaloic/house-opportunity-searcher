@@ -60,12 +60,12 @@ function buildLevers(l: Listing): Lever[] {
 
   if (dec >= 3) out.push({ tone: 'gold', text: `${dec.toFixed(0)} % sous la médiane DVF du quartier` })
   if ((l.crit.signaux_vendeur ?? 0) >= 60) out.push({ tone: 'success', text: 'Signaux vendeur détectés (mutation / succession / « à débattre »)' })
-  if (days >= 45) out.push({ tone: 'success', text: `En ligne depuis ${days} j sans baisse — vendeur qui faiblit` })
+  if (days >= 45) out.push({ tone: 'success', text: `En ligne depuis ${days} j sans baisse : vendeur qui faiblit` })
   if ((l.crit.futur_transport ?? 0) >= 55 || l.tags.some((t) => /gare|gpe|eole/i.test(t)))
-    out.push({ tone: 'info', text: 'Future gare Grand Paris < 800 m — plus-value avant ouverture' })
-  if (dpe === 'F' || dpe === 'G') out.push({ tone: 'danger', text: 'Passoire énergétique — levier de prix + déficit foncier' })
-  if (l.floorKnown && l.floor === 0) out.push({ tone: 'neutral', text: 'RDC : vérifier vis-à-vis / sécurité — argument de prix' })
-  if (topFloor && l.elevator === false) out.push({ tone: 'neutral', text: 'Dernier étage sans ascenseur — argument de prix' })
+    out.push({ tone: 'info', text: 'Future gare Grand Paris < 800 m : plus-value avant ouverture' })
+  if (dpe === 'F' || dpe === 'G') out.push({ tone: 'danger', text: 'Passoire énergétique : levier de prix + déficit foncier' })
+  if (l.floorKnown && l.floor === 0) out.push({ tone: 'neutral', text: 'RDC : vérifier vis-à-vis / sécurité : argument de prix' })
+  if (topFloor && l.elevator === false) out.push({ tone: 'neutral', text: 'Dernier étage sans ascenseur : argument de prix' })
 
   if (out.length === 0) out.push({ tone: 'neutral', text: 'Peu de leviers : bien proche du marché, négocier à la marge' })
   return out.slice(0, 5)

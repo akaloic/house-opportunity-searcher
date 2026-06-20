@@ -72,7 +72,7 @@ export default function ScoringEngine({ data }: { data: PepiteData }) {
         {/* LEFT */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }} className="anim d2">
           <Panel
-            title="Pondération du scoring" subtitle="Ajustez les poids — l'aperçu se recalcule en direct"
+            title="Pondération du scoring" subtitle="Ajustez les poids : l'aperçu se recalcule en direct"
             icon={<SlidersHorizontal size={16} />}
             actions={
               <div style={{ display: 'flex', gap: 6 }}>
@@ -96,7 +96,7 @@ export default function ScoringEngine({ data }: { data: PepiteData }) {
             </div>
           </Panel>
 
-          <Panel title="Filtres stricts" subtitle="Exclusion ferme — appliqués avant le scoring" icon={<Filter size={16} />}>
+          <Panel title="Filtres stricts" subtitle="Exclusion ferme : appliqués avant le scoring" icon={<Filter size={16} />}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
               <RangeSlider label="Prix maximum" value={priceMax} min={150} max={1200} step={10} accent="var(--gold-500)" suffix=" k€" onChange={touch(setPriceMax)} />
               <RangeSlider label="Surface minimum" value={surfMin} min={10} max={120} accent="var(--viz-2)" suffix=" m²" onChange={touch(setSurfMin)} />

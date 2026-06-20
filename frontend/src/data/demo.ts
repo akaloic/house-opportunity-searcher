@@ -80,7 +80,7 @@ function mk(c: Core): Listing {
 
 const LISTINGS: Listing[] = [
   mk({
-    id: 'cb-001', title: 'T2 lumineux 44 m² — dernier étage', quartier: 'Courbevoie', postal: '92400',
+    id: 'cb-001', title: 'T2 lumineux 44 m², dernier étage', quartier: 'Courbevoie', postal: '92400',
     price: 268000, surface: 44, rooms: 2, floor: 5, floors: 5, balcon: true, elevator: true,
     marketPpm2: 7300, dpe: 'F', freshMin: 95, lat: 48.905, lon: 2.267, score: 88,
     metro: [{ line: 'M15', name: 'Bécon-les-Bruyères', min: 5 }, { line: 'L', name: 'Courbevoie', min: 9 }, { line: 'M1', name: 'La Défense', min: 14 }],
@@ -179,16 +179,16 @@ const LISTINGS: Listing[] = [
 
 const SOURCES = [
   { name: 'Échantillon', status: 'online', scanned: 12, found: 12, blocked: 0, latency: 0, proxy: 'direct' },
-  { name: 'Leboncoin', status: 'idle', scanned: 0, found: 0, blocked: 0, latency: 0, proxy: '—' },
-  { name: 'SeLoger', status: 'idle', scanned: 0, found: 0, blocked: 0, latency: 0, proxy: '—' },
-  { name: "Bien'ici", status: 'idle', scanned: 0, found: 0, blocked: 0, latency: 0, proxy: '—' },
-  { name: 'PAP', status: 'idle', scanned: 0, found: 0, blocked: 0, latency: 0, proxy: '—' },
+  { name: 'Leboncoin', status: 'idle', scanned: 0, found: 0, blocked: 0, latency: 0, proxy: '-' },
+  { name: 'SeLoger', status: 'idle', scanned: 0, found: 0, blocked: 0, latency: 0, proxy: '-' },
+  { name: "Bien'ici", status: 'idle', scanned: 0, found: 0, blocked: 0, latency: 0, proxy: '-' },
+  { name: 'PAP', status: 'idle', scanned: 0, found: 0, blocked: 0, latency: 0, proxy: '-' },
 ]
 
 const LOGS = [
-  { time: '20:00:12', level: 'ok', source: 'sample', message: 'cb-001 scoré 88 (hot) — pépite détectée' },
+  { time: '20:00:12', level: 'ok', source: 'sample', message: 'cb-001 scoré 88 (hot) : pépite détectée' },
   { time: '20:00:12', level: 'info', source: 'sample', message: 'lg-002 scoré 84 (hot)' },
-  { time: '20:00:11', level: 'info', source: 'sample', message: 'na-003 scoré 81 (hot) — proche EOLE' },
+  { time: '20:00:11', level: 'info', source: 'sample', message: 'na-003 scoré 81 (hot) : proche EOLE' },
   { time: '20:00:11', level: 'info', source: 'sample', message: 'co-004 scoré 72 (interesting)' },
   { time: '20:00:10', level: 'info', source: 'sample', message: 'enrichissement DVF terminé · 12 biens' },
 ]

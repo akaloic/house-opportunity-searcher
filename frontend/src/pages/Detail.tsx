@@ -157,7 +157,7 @@ export default function Detail({
             <Fact icon={<Ruler size={12} />} label="Surface" value={`${l.surface} m²`} />
             <Fact icon={<Grid3x3 size={12} />} label="Pièces" value={`${l.rooms}`} />
             <Fact icon={<Layers size={12} />} label="Étage" value={floorVal} />
-            <Fact icon={<Maximize2 size={12} />} label="Balcon" value={l.balcon ? 'Oui' : '—'} />
+            <Fact icon={<Maximize2 size={12} />} label="Balcon" value={l.balcon ? 'Oui' : '-'} />
             <Fact icon={<Building2 size={12} />} label="Ascenseur" value={elevatorVal} />
             <Fact icon={<Leaf size={12} />} label="DPE" value={l.dpe} />
           </div>
@@ -225,7 +225,7 @@ export default function Detail({
 
             <div className="eyebrow" style={{ marginBottom: 2 }}>Coût de revient complet</div>
             <CostRow label="Prix affiché" value={`${fmtEur(l.price)} €`} />
-            <CostRow label={`Travaux estimés${plan.travauxPpm2 ? ` (${plan.travauxPpm2} €/m²)` : ''}`} value={plan.travaux ? `+ ${fmtEur(plan.travaux)} €` : '—'} accent={plan.travaux > 0} />
+            <CostRow label={`Travaux estimés${plan.travauxPpm2 ? ` (${plan.travauxPpm2} €/m²)` : ''}`} value={plan.travaux ? `+ ${fmtEur(plan.travaux)} €` : '-'} accent={plan.travaux > 0} />
             <CostRow label="Frais de notaire (7,5 %)" value={`+ ${fmtEur(plan.fraisNotaire)} €`} />
             <CostRow label="Coût de revient" value={`${fmtEur(plan.coutComplet)} €`} total />
 
