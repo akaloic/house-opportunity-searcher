@@ -1,5 +1,7 @@
 # 🎯 Robot-Chasseur Immobilier — Île-de-France
 
+> Projet présenté sur le **[Portfolio de Loïc Jiraud](https://akaloic.github.io/)**.
+
 Veille immobilière automatisée pour dénicher la **pépite** francilienne avant les autres :
 scraping furtif → enrichissement (DVF, Grand Paris Express, La Défense, NLP) → **scoring
 « œil de l'expert »** → alerte « coup de poing » avec reco d'action chiffrée → **dashboard
