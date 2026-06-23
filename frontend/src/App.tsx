@@ -111,15 +111,33 @@ export default function App() {
             target="_blank"
             rel="noopener noreferrer"
             style={{
-              fontSize: 11,
-              color: 'var(--text-faint)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 7,
+              padding: '9px 12px',
+              borderRadius: 8,
+              border: '1px solid var(--brand-500)',
+              background: 'var(--brand-soft, rgba(201,168,106,0.10))',
+              color: 'var(--brand-400)',
+              fontSize: 12,
+              fontWeight: 600,
               textDecoration: 'none',
-              transition: 'color 0.15s',
+              letterSpacing: '0.02em',
+              transition: 'background 0.15s, box-shadow 0.15s',
             }}
-            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--brand-400)' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-faint)' }}
+            onMouseEnter={e => {
+              const el = e.currentTarget as HTMLAnchorElement
+              el.style.background = 'rgba(201,168,106,0.22)'
+              el.style.boxShadow = '0 0 14px rgba(201,168,106,0.28)'
+            }}
+            onMouseLeave={e => {
+              const el = e.currentTarget as HTMLAnchorElement
+              el.style.background = 'var(--brand-soft, rgba(201,168,106,0.10))'
+              el.style.boxShadow = 'none'
+            }}
           >
-            ↗ Portfolio · akaloic.github.io
+            ↗ Voir le Portfolio
           </a>
         </div>
       </aside>
