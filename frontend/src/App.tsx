@@ -106,6 +106,21 @@ export default function App() {
             </span>
           </div>
           <div style={{ fontSize: 10, color: 'var(--text-faint)', fontFamily: 'var(--font-mono)' }}>chasseur · scoring v3.2</div>
+          <a
+            href="https://akaloic.github.io/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              fontSize: 11,
+              color: 'var(--text-faint)',
+              textDecoration: 'none',
+              transition: 'color 0.15s',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--brand-400)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-faint)' }}
+          >
+            ↗ Portfolio · akaloic.github.io
+          </a>
         </div>
       </aside>
 
